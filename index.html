@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ประมาณการกระเบื้องหลังคา — ทรงปั้นหยา</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F6F3EC;
+    --ink:#1C2B39;
+    --ink-soft:#4C5D6B;
+    --blueprint-bg:#122036;
+    --blueprint-bg-2:#0D1A2C;
+    --blueprint-line:#3E5C7A;
+    --blueprint-line-bright:#BFE0F2;
+    --blueprint-text:#DCEBF5;
+    --accent:#E08E2C;
+    --accent-dim:#C97B1F;
+    --panel-bg:#FFFFFF;
+    --border:#DCD5C4;
+    --valley:#7FD1B9;
+    --eave:#E8503A;
+    --ridge-color:#F2C230;
+    --hip-color:#3FB6E8;
+    --face-label:rgba(255,255,255,.42);
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:'IBM Plex Sans Thai',sans-serif;-webkit-font-smoothing:antialiased;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  .wrap{max-width:1300px;margin:0 auto;padding:28px 20px 60px;}
+  header{margin-bottom:22px;text-align:center;}
+  .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent-dim);font-weight:600;margin-bottom:6px;}
+  h1{font-size:26px;margin:0 0 4px;font-weight:700;letter-spacing:-.01em;}
+  .sub{color:var(--ink-soft);font-size:14.5px;margin:0;}
+  .grid{display:flex;flex-direction:row;align-items:flex-start;justify-content:center;gap:20px;flex-wrap:wrap;max-width:1240px;margin:0 auto;}
+  .side-col{display:flex;flex-direction:column;gap:14px;width:100%;max-width:320px;}
+  .panel{background:var(--panel-bg);border:1px solid var(--border);border-radius:10px;padding:20px;}
+  .panel h2{font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft);margin:0 0 14px;font-weight:600;text-align:center;}
+  .field{margin-bottom:16px;}
+  .field label{display:flex;justify-content:center;align-items:baseline;gap:8px;font-size:13px;font-weight:600;margin-bottom:6px;}
+  .field label .tag{font-family:'IBM Plex Mono',monospace;font-size:11px;color:#fff;background:var(--blueprint-bg);padding:1px 6px;border-radius:4px;}
+  .field label .unit-tag{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-soft);}
+  .field input[type=number]{width:100%;padding:9px 10px;border:1.5px solid var(--border);border-radius:6px;font-size:15px;font-family:'IBM Plex Mono',monospace;background:#FBFAF7;color:var(--ink);}
+  .field input[type=number]:focus{outline:none;border-color:var(--accent);}
+  .field .unit{font-size:12px;color:var(--ink-soft);font-weight:400;}
+  .angle-row{display:flex;gap:10px;align-items:center;}
+  .tile-type-row{display:flex;gap:8px;}
+  .tile-type-opt{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:8px 6px;border:1.5px solid var(--border);border-radius:6px;font-size:11.5px;font-weight:600;line-height:1.4;text-align:center;cursor:pointer;color:var(--ink-soft);transition:.15s border-color,.15s background,.15s color;}
+  .tile-type-opt input{accent-color:var(--accent);margin:0;}
+  .tile-type-opt:has(input:checked){border-color:var(--accent);background:#FFF6EA;color:var(--accent-dim);}
+  .angle-row input[type=range]{flex:1;accent-color:var(--accent);}
+  .angle-row .angle-val{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:15px;min-width:46px;text-align:right;}
+  .note{font-size:12px;color:var(--ink-soft);background:#F3EFE4;border-radius:6px;padding:9px 10px;line-height:1.5;margin-top:4px;}
+  .note.warn{background:#FCEFE1;color:#8A5A1E;}
+  .blueprint{background:radial-gradient(circle at 0 0, rgba(255,255,255,.03), transparent 60%),var(--blueprint-bg);border-radius:10px;padding:0;overflow:hidden;border:1px solid var(--blueprint-bg-2);flex:1 1 500px;max-width:900px;min-width:320px;container-type:inline-size;}
+  .blueprint-head{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid rgba(255,255,255,.08);}
+  .blueprint-head .title{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.08em;color:var(--blueprint-line-bright);text-transform:uppercase;}
+  .blueprint-head .scale{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--blueprint-line);}
+  .diagram-area{padding:10px 10px 0;}
+  .plan-wrap{position:relative;}
+  svg.plan{width:100%;height:auto;display:block;}
+  .grid-line{stroke:rgba(255,255,255,.05);stroke-width:1;}
+  .outline{fill:none;stroke:var(--eave);stroke-width:2.5;}
+  .ridge-line{stroke:var(--ridge-color);stroke-width:2.5;}
+  .hip-line{stroke:var(--hip-color);stroke-width:1.8;stroke-dasharray:5 4;}
+  .valley-line{stroke:var(--valley);stroke-width:2;stroke-dasharray:2 3;}
+  .dim-line{stroke:var(--blueprint-line);stroke-width:1;}
+  .dim-text{fill:var(--blueprint-text);font-family:'IBM Plex Mono',monospace;font-size:11.5px;}
+  .dim-text-accent{fill:var(--accent);font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;}
+  .price-text{fill:var(--blueprint-text);font-family:'IBM Plex Mono',monospace;font-size:9.2px;}
+  .price-text-accent{fill:var(--accent);font-family:'IBM Plex Mono',monospace;font-size:9.6px;font-weight:600;}
+  .line-label{font-family:'IBM Plex Mono',monospace;font-size:11.5px;font-weight:600;paint-order:stroke;stroke:var(--blueprint-bg-2);stroke-width:3.5px;stroke-linejoin:round;}
+  .face-area-label{font-family:'IBM Plex Mono',monospace;font-size:9.5px;font-weight:400;}
+  .pitch-arc{fill:none;stroke:var(--accent);stroke-width:1.4;}
+  .pitch-line{stroke:var(--blueprint-line-bright);stroke-width:1.4;}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;padding:0 18px 10px;font-family:'IBM Plex Mono',monospace;font-size:10.5px;font-size:clamp(4px, 1.17cqw, 10.5px);color:var(--blueprint-line-bright);}
+  .legend span{display:inline-flex;align-items:center;gap:5px;}
+  .legend i{width:14px;height:2px;display:inline-block;}
+  .results{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:rgba(255,255,255,.08);margin:6px 0 0;border-top:1px solid rgba(255,255,255,.08);}
+  .result-cell{background:var(--blueprint-bg-2);padding:16px 18px;}
+  .result-cell .label{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.06em;color:var(--blueprint-line-bright);text-transform:uppercase;opacity:.75;margin-bottom:6px;}
+  .result-cell .value{font-family:'IBM Plex Mono',monospace;font-size:22px;font-weight:600;color:#fff;}
+  .result-cell .value .unit{font-size:13px;color:var(--blueprint-line-bright);font-weight:400;margin-left:4px;}
+  .formula-strip{padding:12px 18px 16px;font-family:'IBM Plex Mono',monospace;font-size:10.8px;color:var(--blueprint-line);border-top:1px solid rgba(255,255,255,.06);line-height:1.7;}
+  .material-card{margin:20px auto 0;max-width:1240px;}
+  @media print {
+    .material-card{page-break-before:always;margin-top:0;}
+  }
+  #materialGrid{display:block;background:none;padding:6px 18px 10px;}
+  .mat-group{margin-bottom:14px;}
+  .mat-group-title{font-family:'IBM Plex Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--accent);font-weight:600;padding:8px 0 6px;border-bottom:1px solid rgba(255,255,255,.1);margin-bottom:4px;}
+  .mat-row{display:flex;justify-content:space-between;gap:12px;padding:4px 0;font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--blueprint-text);border-bottom:1px solid rgba(255,255,255,.04);}
+  .mat-label{color:var(--blueprint-line-bright);opacity:.85;}
+  .mat-value{color:#FFFFFF;font-weight:600;white-space:nowrap;}
+  .mat-unit{font-weight:400;color:var(--blueprint-line-bright);margin-left:4px;font-size:11px;}
+  .mat-note{font-family:'IBM Plex Sans Thai',sans-serif;font-size:11px;color:var(--blueprint-line);opacity:.8;padding:2px 0 6px 10px;font-style:italic;}
+  .notes-section{padding:10px 18px 18px;border-top:1px solid rgba(255,255,255,.06);}
+  .notes-label{font-family:'IBM Plex Mono',monospace;font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--blueprint-line-bright);opacity:.75;margin-bottom:8px;}
+  .notes-list{list-style:none;margin:0;padding:0;}
+  .notes-item{display:flex;align-items:flex-start;gap:8px;padding:4px 0;font-family:'IBM Plex Sans Thai',sans-serif;font-size:13px;color:var(--blueprint-text);line-height:1.6;}
+  .notes-item::before{content:'•';color:var(--accent);flex-shrink:0;margin-top:1px;}
+  .notes-item-text{flex:1;outline:none;}
+  .notes-item-text:focus{outline:1px dashed var(--blueprint-line);outline-offset:4px;border-radius:4px;}
+  .notes-remove-btn{flex-shrink:0;background:none;border:none;color:var(--blueprint-line);cursor:pointer;font-size:15px;line-height:1;padding:0 2px;opacity:.6;}
+  .notes-remove-btn:hover{opacity:1;color:var(--eave);}
+  .notes-add-btn{margin-top:8px;background:none;border:1px dashed var(--blueprint-line);color:var(--blueprint-line-bright);border-radius:6px;padding:5px 12px;font-family:'IBM Plex Sans Thai',sans-serif;font-size:12px;cursor:pointer;}
+  .notes-add-btn:hover{border-color:var(--accent);color:var(--accent);}
+  .cta{background:var(--accent);color:#1C2B39;border:none;padding:12px 22px;border-radius:7px;font-family:'IBM Plex Sans Thai',sans-serif;font-weight:600;font-size:14.5px;cursor:pointer;transition:.15s background;}
+  .cta:hover{background:var(--accent-dim);color:#fff;}
+  .cta-secondary{background:var(--blueprint-bg);color:var(--blueprint-line-bright);border:1.5px solid var(--blueprint-line);padding:11px 20px;border-radius:7px;font-family:'IBM Plex Sans Thai',sans-serif;font-weight:600;font-size:14.5px;cursor:pointer;transition:.15s background,.15s border-color;width:100%;}
+  .cta-secondary:hover{background:var(--blueprint-bg-2);border-color:var(--blueprint-line-bright);}
+  .send-panel{margin-top:14px;border:1.5px dashed var(--accent);background:#FFF6EA;border-radius:8px;padding:14px 16px;}
+  .send-panel .t{font-size:12px;font-weight:600;color:var(--accent-dim);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;}
+  .send-panel .row{display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:13.5px;padding:3px 0;}
+  .send-panel .row span:first-child{color:var(--ink-soft);}
+
+  @page {
+    size: A4 landscape;
+    margin: 10mm;
+  }
+
+  @media print {
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    body{background:#FFFFFF;--face-label:rgba(0,0,0,.4);}
+    .wrap{max-width:100%;padding:0;}
+    .grid{gap:12px;}
+    .panel{border:1px solid #C9C9C9;box-shadow:none;}
+    #pdfBtn, .send-panel{display:none !important;}
+    .angle-row input[type=range]{display:none;}
+    .angle-row .angle-val{font-size:16px;}
+    .field input[type=number]{background:#fff;border-color:#C9C9C9;color:#111;}
+
+    /* blueprint panel: switch surfaces to white, keep line/stroke colors (--eave, --ridge-color, --hip-color, --accent) untouched */
+    .blueprint{background:#FFFFFF;border:1px solid #C9C9C9;page-break-inside:avoid;}
+    .blueprint-head{border-bottom:1px solid #DDD;}
+    .blueprint-head .title{color:#333;}
+    .blueprint-head .scale{color:#666;}
+    .grid-line{stroke:rgba(0,0,0,.07);}
+    .dim-text{fill:#333;}
+    .price-text{fill:#333;}
+    .dim-line{stroke:#999;}
+    .pitch-line{stroke:#888;}
+    .line-label{stroke:#FFFFFF;}
+    .legend{color:#333;}
+    .results{background:#DDD;}
+    .result-cell{background:#F7F6F2;}
+    .result-cell .label{color:#666;}
+    .result-cell .value{color:#111;}
+    .result-cell .value .unit{color:#666;}
+    .formula-strip{color:#555;border-top:1px solid #DDD;}
+    .notes-section{border-top:1px solid #DDD;padding:8px 16px 12px;}
+    .notes-label{color:#666;}
+    .notes-item{color:#222;}
+    .notes-item::before{color:#C97B1F;}
+    .notes-remove-btn, .notes-add-btn{display:none !important;}
+    .mat-group-title{color:#333;border-bottom:1px solid #DDD;}
+    .mat-row{color:#333;border-bottom:1px solid #EEE;}
+    .mat-label{color:#555;}
+    .mat-value{color:#111;}
+    .mat-unit{color:#666;}
+    .mat-note{color:#777;}
+  }
+
+  /* Dedicated "save diagram as PDF" print mode: only the blueprint frame, single A4 page, drawing + dimensions + results */
+  @media print {
+    body.diagram-only-print{background:#FFFFFF !important;--face-label:rgba(0,0,0,.4);}
+    body.diagram-only-print header,
+    body.diagram-only-print .side-col{display:none !important;}
+    body.diagram-only-print .grid{display:block !important;}
+    body.diagram-only-print .wrap{max-width:100%;padding:0;}
+    body.diagram-only-print .blueprint{
+      background:#FFFFFF !important;
+      border:1px solid #C9C9C9 !important;
+      page-break-inside:avoid;
+      margin:0 auto !important;
+    }
+    body.diagram-only-print .blueprint-head{border-bottom:1px solid #DDD !important;padding:8px 16px !important;}
+    body.diagram-only-print .blueprint-head .title{color:#333 !important;}
+    body.diagram-only-print .blueprint-head .scale{color:#666 !important;}
+    body.diagram-only-print .diagram-area{padding:6px 8px 4px !important;}
+    body.diagram-only-print svg.plan{width:auto !important;max-width:100% !important;height:98mm !important;display:block;margin:0 auto;}
+    body.diagram-only-print .grid-line{stroke:rgba(0,0,0,.07) !important;}
+    body.diagram-only-print .dim-text{fill:#333 !important;}
+    body.diagram-only-print .price-text{fill:#333 !important;}
+    body.diagram-only-print .dim-line{stroke:#999 !important;}
+    body.diagram-only-print .pitch-line{stroke:#888 !important;}
+    body.diagram-only-print .line-label{stroke:#FFFFFF !important;}
+    body.diagram-only-print .legend{color:#333 !important;padding:0 16px 6px !important;gap:12px !important;}
+    body.diagram-only-print .results{background:#DDD !important;}
+    body.diagram-only-print .result-cell{background:#F7F6F2 !important;padding:8px 14px !important;}
+    body.diagram-only-print .result-cell .label{color:#666 !important;opacity:1;font-size:9.5px !important;margin-bottom:3px !important;}
+    body.diagram-only-print .result-cell .value{color:#111 !important;font-size:17px !important;}
+    body.diagram-only-print .result-cell .value .unit{color:#666 !important;font-size:11px !important;}
+    body.diagram-only-print .formula-strip{color:#555 !important;border-top:1px solid #DDD !important;padding:8px 16px 10px !important;font-size:9.5px !important;line-height:1.5 !important;}
+    body.diagram-only-print .notes-section{border-top:1px solid #DDD !important;padding:6px 16px 10px !important;}
+    body.diagram-only-print .notes-label{color:#666 !important;font-size:9.5px !important;}
+    body.diagram-only-print .notes-item{color:#222 !important;font-size:11px !important;}
+    body.diagram-only-print .notes-item::before{color:#C97B1F !important;}
+    body.diagram-only-print .notes-remove-btn, body.diagram-only-print .notes-add-btn{display:none !important;}
+  }
+
+  /* Mobile: the SVG diagram text scales with its own width automatically (viewBox units),
+     but surrounding HTML text (legend, card headers, result numbers) uses fixed px sizes
+     and doesn't shrink with it — so on a narrow screen it looks oversized next to the
+     now-much-smaller diagram. Scale those down to match. */
+  @media (max-width: 480px) {
+    .legend i{width:10px;}
+    .blueprint-head{padding:10px 12px;}
+    .blueprint-head .title{font-size:10px;}
+    .blueprint-head .scale{font-size:9.5px;}
+    .results{grid-template-columns:repeat(auto-fit,minmax(120px,1fr));}
+    .result-cell{padding:12px 14px;}
+    .result-cell .label{font-size:9.5px;}
+    .result-cell .value{font-size:18px;}
+    .result-cell .value .unit{font-size:11px;}
+    .formula-strip{font-size:9.5px;padding:10px 14px 12px;}
+    .notes-section{padding:8px 14px 14px;}
+    .notes-label{font-size:9.5px;}
+    .notes-item{font-size:12px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="grid">
+    <div class="side-col">
+      <div class="panel">
+        <div class="field">
+          <label><span>ด้านสั้น (a)</span><span class="tag">a</span></label>
+          <input type="number" id="in_W" value="10.00" min="0.5" step="0.1">
+          <div class="unit">เมตร</div>
+        </div>
+        <div class="field">
+          <label><span>ด้านยาว (b)</span><span class="tag">b</span></label>
+          <input type="number" id="in_L" value="20.00" min="0.5" step="0.1">
+          <div class="unit">เมตร</div>
+        </div>
+        <div class="field">
+          <label>ชนิดกระเบื้อง</label>
+          <div class="tile-type-row">
+            <label class="tile-type-opt"><input type="radio" name="tileType" value="wave" id="tileTypeWave" checked><span>คอนกรีต<br>ชนิดลอน (CP)</span></label>
+            <label class="tile-type-opt"><input type="radio" name="tileType" value="flat" id="tileTypeFlat"><span>คอนกรีต<br>ชนิดเรียบ (PT)</span></label>
+          </div>
+        </div>
+        <div class="field">
+          <label>องศาหลังคา (θ)</label>
+          <div class="angle-row">
+            <input type="range" id="inAngle" min="5" max="60" value="30" step="1">
+            <span class="angle-val mono" id="angleVal">30°</span>
+          </div>
+        </div>
+        <div class="field">
+          <label><span>ค่าแรงมุงกระเบื้อง</span><span class="unit-tag">บาท/ตร.ม.</span></label>
+          <input type="number" id="rateTile" value="150" min="0" step="1">
+        </div>
+        <div class="field">
+          <label><span>ค่าแรงติดตั้งเชิงชาย</span><span class="unit-tag">บาท/ม.</span></label>
+          <input type="number" id="rateEave" value="120" min="0" step="1">
+        </div>
+        <div class="field">
+          <label><span>ค่าเดินทาง</span><span class="unit-tag">บาท/รอบ</span></label>
+          <input type="number" id="rateTravel" value="1000" min="0" step="1">
+        </div>
+        <div class="field">
+          <label><span>ค่าที่พัก</span><span class="unit-tag">บาท/ครั้ง</span></label>
+          <input type="number" id="rateStay" value="3000" min="0" step="1">
+        </div>
+      </div>
+
+      <button class="cta-secondary" id="pdfBtn">บันทึกแบบเป็น PDF →</button>
+
+      <div class="send-panel" id="sendPanel">
+        <div class="t">สรุปข้อมูลประมาณการ</div>
+        <div id="sendRows"></div>
+      </div>
+    </div>
+
+    <div class="blueprint">
+      <div class="blueprint-head">
+        <span class="title">ผังหลังคา — มุมมองบน</span>
+        <span class="scale mono" id="scaleLabel">SCALE AUTO</span>
+      </div>
+      <div class="diagram-area">
+        <div class="plan-wrap" id="planWrap">
+          <svg class="plan" viewBox="0 0 560 390" id="planSvg"></svg>
+        </div>
+      </div>
+      <div class="legend">
+        <span><i style="background:var(--eave)"></i>เชิงชาย (Eave)</span>
+        <span><i style="background:var(--ridge-color)"></i>สัน (Ridge)</span>
+        <span><i style="background:var(--hip-color);border-top:2px dashed var(--hip-color);height:0"></i>ตะเข้สัน (Hip)</span>
+      </div>
+      <div class="results" id="resultsGrid"></div>
+      <div class="formula-strip" id="formulaStrip"></div>
+      <div class="notes-section">
+        <div class="notes-label">หมายเหตุ</div>
+        <ul class="notes-list" id="notesList"></ul>
+        <button class="notes-add-btn" id="addNoteBtn" type="button">+ เพิ่มข้อความ</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="blueprint material-card" id="materialCard">
+    <div class="blueprint-head">
+      <span class="title">คำนวณวัสดุ</span>
+    </div>
+    <div class="results" id="materialGrid"></div>
+  </div>
+</div>
+
+<script>
+const state = { shape: 'hip' };
+
+const els = {
+  angle: document.getElementById('inAngle'),
+  angleVal: document.getElementById('angleVal'),
+  planSvg: document.getElementById('planSvg'),
+  resultsGrid: document.getElementById('resultsGrid'),
+  formulaStrip: document.getElementById('formulaStrip'),
+  scaleLabel: document.getElementById('scaleLabel'),
+};
+
+function getVal(id, fallback) {
+  const el = document.getElementById('in_'+id);
+  return el ? (parseFloat(el.value) || fallback) : fallback;
+}
+
+document.getElementById('in_W').addEventListener('input', render);
+document.getElementById('in_L').addEventListener('input', render);
+
+function formatOnBlur(e){
+  const v = parseFloat(e.target.value);
+  if (isFinite(v)) e.target.value = v.toFixed(2);
+}
+document.getElementById('in_W').addEventListener('blur', formatOnBlur);
+document.getElementById('in_L').addEventListener('blur', formatOnBlur);
+els.angle.addEventListener('input', render);
+document.getElementById('rateTile').addEventListener('input', render);
+document.getElementById('rateEave').addEventListener('input', render);
+document.getElementById('rateTravel').addEventListener('input', render);
+document.getElementById('rateStay').addEventListener('input', render);
+function syncTileRate(){
+  document.getElementById('rateTile').value = document.getElementById('tileTypeFlat').checked ? 180 : 150;
+  render();
+}
+document.getElementById('tileTypeWave').addEventListener('change', syncTileRate);
+document.getElementById('tileTypeFlat').addEventListener('change', syncTileRate);
+
+function fmt(n, d=2){ return (isFinite(n)?n:0).toLocaleString('th-TH', {minimumFractionDigits:d, maximumFractionDigits:d}); }
+
+function calc() {
+  const angleDeg = parseFloat(els.angle.value) || 0;
+  const theta = angleDeg * Math.PI / 180;
+  const cos = Math.cos(theta);
+
+  if (state.shape === 'hip') {
+    const W = Math.max(getVal('W',8),0.1), L = Math.max(getVal('L',14),0.1);
+    const planArea = W*L, slopedArea = planArea/cos;
+    const ridge = Math.max(L-W,0);
+    const rafter = (W/2)/cos;
+    const hip = 4*Math.sqrt(Math.pow(W/2,2) + Math.pow(rafter,2));
+    const eave = 2*(W+L);
+    const trapArea = ((ridge+L)/2)*(W/2)/cos;   // each of the 2 long-side (top/bottom) faces
+    const triArea = (W*W/4)/cos;                 // each of the 2 short-side (left/right) faces
+    return {angleDeg, planArea, slopedArea, ridge, hip, rafter, eave, trapArea, triArea, valley:0, extra:{isPyramid:L<=W}};
+  }
+}
+
+// Material estimation per SCG reference formula sheets.
+// Two tile product lines with different coefficients, selectable via tileType ('wave' | 'flat'):
+//   wave = หลังคาคอนกรีต ชนิดลอน (original sheet)
+//   flat = หลังคาคอนกรีต ชนิดเรียบ รุ่นเพรสทีจ (this sheet)
+//
+// Assumptions forced to 0 by this roof's geometry (single rectangular hip roof, one pitch):
+//   - ตะเข้ราง (valley)                         = 0  (no re-entrant valleys)
+//   - ปันลม (verge/barge, gable ends)            = 0  (pure hip roof has no vertical gable end)
+//   - แผ่นปิดรอยต่อกรณีหลังคาเปลี่ยนองศา            = 0  (single pitch, no slope break)
+//   - จำนวนชุดครอบปล่อง / จำนวนแประบายอากาศ         = 0  (not specified/not placed)
+//   - ความยาวแผ่นรองเชิงชาย (fascia backing board) = 0  (assumed not installed)
+// "จำนวนวัสดุปรับระดับแป_ชุด" used inside the purlin-screw formula is estimated at 1 set per
+// metre of เชิงชาย, matching the density implied by the leveling-material formula — an estimate,
+// verify on site. "สีแต่งขอบกระเบื้อง" (item 26.1, flat sheet) is always 0 for this roof shape
+// (needs ตะเข้ราง/ปันลม/pitch-joint, none of which this shape ever has) so it's omitted.
+function calcMaterials(d, tileType) {
+  const area = d.slopedArea, hip = d.hip, ridge = d.ridge, eave = d.eave;
+  const valley = 0, verge = 0, pitchJoint = 0, ventCapSets = 0, fasciaBacking = 0, ventPurlinCount = 0;
+  const isPyramid = d.extra.isPyramid;
+
+  // shared across both tile types
+  const hipTipCapCount = 4;                          // ครอบปิดปลายตะเข้สัน — จุดละ 1 แผ่น, 4 มุมชายคาเสมอ
+  const junction3Way = isPyramid ? 0 : 2;             // จุดต่อสัน-ตะเข้ 3 ทาง
+  const junction4Way = isPyramid ? 1 : 0;             // จุดยอดตะเข้สัน 4 ทาง (ทรงปิรามิดเท่านั้น)
+  const hipTrimTiles = Math.ceil(hip * 6);            // แผ่นเศษที่ต้องตัดตามแนวตะเข้สัน (รวมอยู่ใน tileCount แล้ว)
+
+  let reflectRollsBig = Math.floor(area / 60);
+  let reflectRemainder = area - reflectRollsBig * 60;
+  let reflectRollsSmall = Math.ceil(reflectRemainder / 20);
+  if (reflectRollsSmall >= 3) { reflectRollsBig += 1; reflectRollsSmall = 0; }
+
+  const alumTapeRolls = Math.ceil((hip + valley) / 20);
+  const levelingSets = eave;
+  const levelingBoxes = Math.ceil(eave / 10);
+  const eaveHookBoxes = Math.ceil((3.40 * (eave - fasciaBacking)) / 50);
+  const eaveCoverBoxes = Math.ceil(eave / 6);
+  const dryRidgeSets = Math.ceil(ridge / 3);
+  const dryHipSets = Math.ceil(hip / 3);
+  const hipEndCoverBoxes = Math.ceil(hipTipCapCount / 4);
+  const ridgeHipCoverBoxes = Math.ceil((ridge + hip) / 3);
+
+  let tileCount, ridgeCapCount, hipCapCount, purlinCount, tileScrewBoxes, clipBoxes, jointCoverCount, mortarPaintWet;
+
+  if (tileType === 'flat') {
+    // หลังคาคอนกรีต ชนิดเรียบ รุ่นเพรสทีจ
+    const coef = area <= 200 ? 10.95 : (area <= 500 ? 10.85 : 10.75);
+    tileCount = Math.ceil(coef * area + 3 * (hip + valley));
+    ridgeCapCount = Math.ceil(2.9 * ridge + junction3Way - ventCapSets);       // ครอบสันหลังคา
+    hipCapCount = Math.ceil(2.9 * hip + 4);                                    // ครอบตะเข้สัน (4 = จำนวนแนวตะเข้สัน)
+    purlinCount = Math.ceil(0.88 * area + 0.50 * valley + eave / 3.8 - ventPurlinCount);
+    tileScrewBoxes = Math.ceil((21.7 * area) / 250);
+    clipBoxes = Math.ceil((4.6 * (hip + valley)) / 50);
+    jointCoverCount = junction3Way + junction4Way;
+    mortarPaintWet = null; // ไม่มีรายการนี้ในสูตรกระเบื้องชนิดเรียบ
+  } else {
+    // หลังคาคอนกรีต ชนิดลอน
+    const coef = area <= 200 ? 10.80 : (area <= 500 ? 10.70 : 10.65);
+    tileCount = Math.ceil(coef * area + 3 * (hip + valley));
+    ridgeCapCount = Math.ceil((3.3 * ridge + hip) - ventCapSets);              // ครอบสันโค้ง (รวมสัน+ตะเข้)
+    hipCapCount = null;                                                        // ไม่มีรายการแยกในสูตรชนิดลอน
+    purlinCount = Math.ceil(0.80 * area + 0.50 * valley + eave / 3.8);
+    tileScrewBoxes = Math.ceil((10.6 * area) / 250);
+    clipBoxes = Math.ceil((4.4 * (hip + valley)) / 50);
+    jointCoverCount = junction3Way;
+    mortarPaintWet = Math.max(1, Math.ceil((ridge + hip + valley + verge + pitchJoint) / 40));
+  }
+
+  const purlinScrewPieces = (purlinCount * 16) + (levelingSets * 10 * 2) + (fasciaBacking * 3);
+  const purlinScrewBoxes = Math.ceil(purlinScrewPieces / 500);
+
+  return {
+    tileType, tileCount, hipTrimTiles, ridgeCapCount, hipCapCount, hipTipCapCount, junction3Way,
+    reflectRollsBig, reflectRollsSmall, alumTapeRolls,
+    purlinCount, levelingBoxes, purlinScrewBoxes,
+    tileScrewBoxes, eaveHookBoxes, clipBoxes, eaveCoverBoxes, jointCoverCount,
+    dryRidgeSets, dryHipSets, mortarPaintWet,
+    hipEndCoverBoxes, ridgeHipCoverBoxes
+  };
+}
+
+function drawPlan(d) {
+  const vbW=560, vbH=390;
+  let svg='';
+  for (let x=0;x<=vbW;x+=20) svg += `<line class="grid-line" x1="${x}" y1="0" x2="${x}" y2="${vbH}"/>`;
+  for (let y=0;y<=vbH;y+=20) svg += `<line class="grid-line" x1="0" y1="${y}" x2="${vbW}" y2="${y}"/>`;
+
+  if (state.shape === 'hip') {
+    const W=getVal('W',8), L=getVal('L',14);
+    const maxW=380, maxH=190;
+    const scale=Math.min(maxW/L, maxH/W);
+    const rectW=L*scale, rectH=W*scale;
+    const ox=(vbW-rectW)/2, oy=(vbH-rectH)/2-6;
+    svg += `<rect class="outline" x="${ox}" y="${oy}" width="${rectW}" height="${rectH}" rx="2"/>`;
+    const run=Math.min(rectH/2, rectW/2);
+    const rS=ox+run, rE=ox+rectW-run, rY=oy+rectH/2;
+    if (rE>rS) svg += `<line class="ridge-line" x1="${rS}" y1="${rY}" x2="${rE}" y2="${rY}"/>`;
+    svg += `<line class="hip-line" x1="${ox}" y1="${oy}" x2="${rS}" y2="${rY}"/>`;
+    svg += `<line class="hip-line" x1="${ox}" y1="${oy+rectH}" x2="${rS}" y2="${rY}"/>`;
+    svg += `<line class="hip-line" x1="${ox+rectW}" y1="${oy}" x2="${rE}" y2="${rY}"/>`;
+    svg += `<line class="hip-line" x1="${ox+rectW}" y1="${oy+rectH}" x2="${rE}" y2="${rY}"/>`;
+    // per-side eave labels (all 4 sides, actual lengths)
+    const cx=ox+rectW/2, cy=oy+rectH/2;
+    svg += `<text class="line-label" fill="var(--eave)" x="${cx}" y="${oy-9}" text-anchor="middle">b = ${fmt(L)} ม.</text>`;
+    svg += `<text class="line-label" fill="var(--eave)" x="${cx}" y="${oy+rectH+21}" text-anchor="middle">b = ${fmt(L)} ม.</text>`;
+    svg += `<text class="line-label" fill="var(--eave)" x="${ox-13}" y="${cy}" text-anchor="middle" transform="rotate(-90 ${ox-13} ${cy})">a = ${fmt(W)} ม.</text>`;
+    svg += `<text class="line-label" fill="var(--eave)" x="${ox+rectW+13}" y="${cy}" text-anchor="middle" transform="rotate(-90 ${ox+rectW+13} ${cy})">a = ${fmt(W)} ม.</text>`;
+
+    // ridge label
+    if (rE>rS) {
+      svg += `<text class="line-label" fill="var(--ridge-color)" x="${(rS+rE)/2}" y="${rY-9}" text-anchor="middle">${fmt(d.ridge)} ม.</text>`;
+    }
+
+    // hip labels (4 lines, equal length for symmetric hip roof)
+    const hipEach = d.hip/4;
+    const hipSegs = [
+      [ox, oy, rS, rY],
+      [ox, oy+rectH, rS, rY],
+      [ox+rectW, oy, rE, rY],
+      [ox+rectW, oy+rectH, rE, rY],
+    ];
+    hipSegs.forEach(([x1,y1,x2,y2]) => {
+      const mx=(x1+x2)/2, my=(y1+y2)/2;
+      let vx=mx-cx, vy=my-cy;
+      const vlen=Math.hypot(vx,vy)||1;
+      vx/=vlen; vy/=vlen;
+      const lx=mx+vx*11, ly=my+vy*11;
+      let angle=Math.atan2(y2-y1,x2-x1)*180/Math.PI;
+      if (angle>90||angle<-90) angle+=180;
+      svg += `<text class="line-label" fill="var(--hip-color)" x="${lx}" y="${ly}" text-anchor="middle" transform="rotate(${angle} ${lx} ${ly})">${fmt(hipEach)} ม.</text>`;
+    });
+
+    // per-face area labels (small, faint, gray) — for later tile waste/coverage calc per face
+    const topY = (oy+rY)/2, bottomY = (rY+oy+rectH)/2;
+    svg += `<text class="face-area-label" fill="var(--face-label)" x="${cx}" y="${topY+3}" text-anchor="middle">${fmt(d.trapArea)} ตร.ม.</text>`;
+    svg += `<text class="face-area-label" fill="var(--face-label)" x="${cx}" y="${bottomY+3}" text-anchor="middle">${fmt(d.trapArea)} ตร.ม.</text>`;
+    const leftCx=(ox+ox+rS)/3, leftCy=(oy+(oy+rectH)+rY)/3;
+    const rightCx=((ox+rectW)+(ox+rectW)+rE)/3, rightCy=leftCy;
+    svg += `<text class="face-area-label" fill="var(--face-label)" x="${leftCx}" y="${leftCy+3}" text-anchor="middle">${fmt(d.triArea)} ตร.ม.</text>`;
+    svg += `<text class="face-area-label" fill="var(--face-label)" x="${rightCx}" y="${rightCy+3}" text-anchor="middle">${fmt(d.triArea)} ตร.ม.</text>`;
+
+    // pitch indicator (mini side-elevation showing the roof angle theta) — anchored top-left, inset from edges
+    const theta = d.angleDeg*Math.PI/180;
+    const baseLen = 38, riseLen = Math.min(baseLen*Math.tan(theta), 32);
+    const piX = baseLen+26, piY = 66;
+    svg += `<g>
+      <line class="pitch-line" x1="${piX-baseLen}" y1="${piY}" x2="${piX}" y2="${piY}"/>
+      <line class="pitch-line" x1="${piX-baseLen}" y1="${piY}" x2="${piX-baseLen}" y2="${piY-riseLen}"/>
+      <line class="pitch-line" x1="${piX-baseLen}" y1="${piY-riseLen}" x2="${piX}" y2="${piY}"/>
+      <path class="pitch-arc" d="M ${piX-baseLen+13} ${piY} A 13 13 0 0 0 ${piX-baseLen+12.6} ${piY-3.2}"/>
+      <text class="dim-text-accent" x="${piX-baseLen/2}" y="${piY+16}" text-anchor="middle">θ = ${d.angleDeg}°</text>
+    </g>`;
+
+    // labor cost estimate — bottom-right corner of the diagram
+    const tileLaborRate = parseFloat(document.getElementById('rateTile').value) || 0;
+    const eaveLaborRate = parseFloat(document.getElementById('rateEave').value) || 0;
+    const travelRate = parseFloat(document.getElementById('rateTravel').value) || 0;
+    const stayRate = parseFloat(document.getElementById('rateStay').value) || 0;
+    const tileLabor = tileLaborRate * d.slopedArea;
+    const eaveLabor = eaveLaborRate * d.eave;
+    const totalLabor = tileLabor + eaveLabor + travelRate + stayRate;
+    const priceX = vbW - 12;
+    svg += `<g>
+      <text class="price-text" x="${priceX}" y="${vbH-70}" text-anchor="end">ค่าแรงมุงกระเบื้อง (${tileLaborRate} บาท/ตร.ม.): ${fmt(tileLabor)} บาท</text>
+      <text class="price-text" x="${priceX}" y="${vbH-55}" text-anchor="end">ค่าแรงติดตั้งเชิงชาย (${fmt(eaveLaborRate,0)} บาท/ม.): ${fmt(eaveLabor)} บาท</text>
+      <text class="price-text" x="${priceX}" y="${vbH-40}" text-anchor="end">ค่าเดินทาง: ${fmt(travelRate)} บาท</text>
+      <text class="price-text" x="${priceX}" y="${vbH-25}" text-anchor="end">ค่าที่พัก: ${fmt(stayRate)} บาท</text>
+      <line class="dim-line" x1="${priceX-160}" y1="${vbH-18}" x2="${priceX}" y2="${vbH-18}"/>
+      <text class="price-text-accent" x="${priceX}" y="${vbH-4}" text-anchor="end">รวมค่าแรง: ${fmt(totalLabor)} บาท</text>
+    </g>`;
+  }
+
+  els.planSvg.innerHTML = svg;
+}
+
+function render() {
+  els.angleVal.textContent = els.angle.value + '°';
+  const d = calc();
+
+  drawPlan(d);
+
+  let cells = `
+    <div class="result-cell"><div class="label">พื้นที่หลังคา</div><div class="value">${fmt(d.slopedArea)}<span class="unit">ตร.ม.</span></div></div>
+    <div class="result-cell"><div class="label">ความยาวเชิงชายรวม</div><div class="value">${fmt(d.eave)}<span class="unit">ม.</span></div></div>
+    <div class="result-cell"><div class="label">ระยะสัน (Ridge)</div><div class="value">${fmt(d.ridge)}<span class="unit">ม.</span></div></div>
+    <div class="result-cell"><div class="label">ระยะตะเข้ (Hip) รวม 4 เส้น</div><div class="value">${fmt(d.hip)}<span class="unit">ม.</span></div></div>
+    <div class="result-cell"><div class="label">ความยาวจันทัน</div><div class="value">${fmt(d.rafter,3)}<span class="unit">ม.</span></div></div>`;
+  els.resultsGrid.innerHTML = cells;
+
+  const formulas = {
+    hip: `พื้นที่จริง = (a × b) ÷ cos(θ)  |  เชิงชายรวม = 2×(a+b)  |  สัน = b − a  |  จันทัน = (a/2) ÷ cos(θ)  |  ตะเข้ (รวม 4 เส้น) = 4 × √((a/2)² + จันทัน²)`,
+  };
+  els.formulaStrip.innerHTML = formulas[state.shape];
+  els.scaleLabel.textContent = `θ ${d.angleDeg}°`;
+
+  let sendRows = `
+    <div class="row"><span>พื้นที่หลังคา</span><span>${fmt(d.slopedArea)} ตร.ม.</span></div>
+    <div class="row"><span>ความยาวเชิงชายรวม</span><span>${fmt(d.eave)} ม.</span></div>
+    <div class="row"><span>ระยะสัน</span><span>${fmt(d.ridge)} ม.</span></div>
+    <div class="row"><span>ระยะตะเข้ (4 เส้น)</span><span>${fmt(d.hip)} ม.</span></div>
+    <div class="row"><span>ความยาวจันทัน</span><span>${fmt(d.rafter,3)} ม.</span></div>`;
+  document.getElementById('sendRows').innerHTML = sendRows;
+
+  const tileType = document.getElementById('tileTypeFlat').checked ? 'flat' : 'wave';
+  const m = calcMaterials(d, tileType);
+  const row = (label, value, unit) => `<div class="mat-row"><span class="mat-label">${label}</span><span class="mat-value">${value}<span class="mat-unit">${unit}</span></span></div>`;
+  const group = (title, rowsHtml) => `<div class="mat-group">${title ? `<div class="mat-group-title">${title}</div>` : ''}${rowsHtml}</div>`;
+
+  let matHtml = '';
+  if (tileType === 'flat') {
+    matHtml += group('กระเบื้องและครอบหลัก — ชนิดเรียบ (เพรสทีจ)', [
+      row('หลังคาคอนกรีต ชนิดเรียบ (เพรสทีจ)', fmt(m.tileCount,0), 'แผ่น'),
+      `<div class="mat-note">↳ รวมแผ่นที่ต้องตัดเศษตามแนวตะเข้สันแล้ว ~${fmt(m.hipTrimTiles,0)} แผ่น (ตะเข้สัน × 6)</div>`,
+      row('ครอบสันหลังคา', fmt(m.ridgeCapCount,0), 'แผ่น'),
+      row('ครอบตะเข้สัน', fmt(m.hipCapCount,0), 'แผ่น'),
+      row('ครอบปิดปลายตะเข้สัน', fmt(m.hipTipCapCount,0), 'แผ่น'),
+    ].join(''));
+  } else {
+    matHtml += group('กระเบื้องและครอบหลัก — ชนิดลอน', [
+      row('หลังคาคอนกรีต ชนิดลอน', fmt(m.tileCount,0), 'แผ่น'),
+      `<div class="mat-note">↳ รวมแผ่นที่ต้องตัดเศษตามแนวตะเข้สันแล้ว ~${fmt(m.hipTrimTiles,0)} แผ่น (ตะเข้สัน × 6)</div>`,
+      row('ครอบสันโค้ง', fmt(m.ridgeCapCount,0), 'แผ่น'),
+      row('ครอบโค้งหางมน (ปลายตะเข้สัน)', fmt(m.hipTipCapCount,0), 'แผ่น'),
+      row('ครอบโค้ง 3 ทาง (จุดต่อสัน-ตะเข้)', fmt(m.junction3Way,0), 'แผ่น'),
+    ].join(''));
+  }
+  matHtml += group('ฉนวนกันความร้อน / เทป', [
+    row('แผ่นสะท้อนความร้อน ม้วนใหญ่ (60 ตรม./ม้วน)', fmt(m.reflectRollsBig,0), 'ม้วน'),
+    row('แผ่นสะท้อนความร้อน ม้วนเล็ก (20 ตรม./ม้วน)', fmt(m.reflectRollsSmall,0), 'ม้วน'),
+    row('อลูมิเนียมเทป', fmt(m.alumTapeRolls,0), 'ม้วน'),
+  ].join(''));
+  matHtml += group('แปและอุปกรณ์ยึดแป', [
+    row('แปยาว 4 ม./ท่อน', fmt(m.purlinCount,0), 'ท่อน'),
+    row('ตะปูเกลียวยึดแป (500 ตัว/กล่อง)', fmt(m.purlinScrewBoxes,0), 'กล่อง'),
+    row('วัสดุปรับระดับแป (10 ตัว/กล่อง)', fmt(m.levelingBoxes,0), 'กล่อง'),
+  ].join(''));
+  matHtml += group('ตะปู / ขอยึด / แผ่นปิด', [
+    row('ตะปูเกลียวยึดกระเบื้อง (250 ตัว/กล่อง)', fmt(m.tileScrewBoxes,0), 'กล่อง'),
+    row('ขอยึดเชิงชายไม้สังเคราะห์ (50 ตัว/กล่อง)', fmt(m.eaveHookBoxes,0), 'กล่อง'),
+    row('แหนบยึดกระเบื้องเศษ (50 ตัว/กล่อง)', fmt(m.clipBoxes,0), 'กล่อง'),
+    row('แผ่นปิดเชิงชาย แบบใหม่ (10 แผ่น/กล่อง)', fmt(m.eaveCoverBoxes,0), 'กล่อง'),
+    row('แผ่นปิดรอยต่อ', fmt(m.jointCoverCount,0), 'แผ่น'),
+  ].join(''));
+  matHtml += group('ชุดยึดครอบระบบแห้ง', [
+    row('สำหรับสันหลังคา (ติดยาว)', fmt(m.dryRidgeSets,0), 'ชุด'),
+    row('สำหรับตะเข้สัน (ติดสเตป)', fmt(m.dryHipSets,0), 'ชุด'),
+  ].join(''));
+  if (tileType === 'wave') {
+    matHtml += group('', [
+      row('สีทาปูนทรายใต้ครอบ (2 กก./กระป๋อง)', fmt(m.mortarPaintWet,0), 'กระป๋อง'),
+    ].join(''));
+  }
+  matHtml += group('อุปกรณ์กันสัตว์เล็ก (Drytech เท่านั้น)', [
+    row('แผ่นปิดปลายสันตะเข้ (4 ชิ้น/กล่อง)', fmt(m.hipEndCoverBoxes,0), 'กล่อง'),
+    row('แผ่นปิดครอบสัน/ตะเข้ (5 ชิ้น/กล่อง)', fmt(m.ridgeHipCoverBoxes,0), 'กล่อง'),
+  ].join(''));
+
+  document.getElementById('materialGrid').innerHTML = matHtml;
+}
+
+render();
+
+let notesData = [
+  'ปริมาณวัสดุและอุปกรณ์ที่แสดง เป็นการประมาณการเบื้องต้นจากแบบก่อสร้างและข้อมูลที่ได้รับเท่านั้น ทั้งนี้ควรตรวจสอบรายละเอียดและสภาพหน้างานจริงก่อนสั่งซื้อวัสดุและดำเนินการทุกครั้ง',
+  'วัสดุและอุปกรณ์บางรายการมีให้เลือกหลายระดับคุณภาพ เช่น เกรดพรีเมียม และเกรดรองพรีเมียม ผู้ใช้งานสามารถแจ้งผู้ประมาณการเพื่อปรับเปลี่ยนรายการวัสดุให้เหมาะสมกับงบประมาณและความต้องการของโครงการ',
+  'หากมีการแก้ไขแบบก่อสร้าง รายละเอียดการติดตั้ง หรือเงื่อนไขของหน้างาน ปริมาณวัสดุและรายการอุปกรณ์อาจเปลี่ยนแปลงได้ตามความเหมาะสม',
+  'รายละเอียดค่าแรง: ติดแป ติดเชิงชาย ติดตั้งแผ่นสะท้อนความร้อน มุงกระเบื้อง ติดตั้งชุดยึดครอบระบบแห้ง ติดตั้งครอบ',
+];
+
+function renderNotes() {
+  const list = document.getElementById('notesList');
+  list.innerHTML = notesData.map((text, i) => `
+    <li class="notes-item">
+      <span class="notes-item-text" contenteditable="true" data-idx="${i}">${text}</span>
+      <button class="notes-remove-btn" type="button" data-idx="${i}" title="ลบข้อความนี้">×</button>
+    </li>`).join('');
+}
+
+document.getElementById('notesList').addEventListener('click', (e) => {
+  if (e.target.classList.contains('notes-remove-btn')) {
+    const idx = parseInt(e.target.dataset.idx, 10);
+    notesData.splice(idx, 1);
+    renderNotes();
+  }
+});
+
+document.getElementById('notesList').addEventListener('blur', (e) => {
+  if (e.target.classList.contains('notes-item-text')) {
+    const idx = parseInt(e.target.dataset.idx, 10);
+    notesData[idx] = e.target.textContent;
+  }
+}, true);
+
+document.getElementById('addNoteBtn').addEventListener('click', () => {
+  notesData.push('');
+  renderNotes();
+  const items = document.querySelectorAll('.notes-item-text');
+  const last = items[items.length - 1];
+  if (last) { last.focus(); }
+});
+
+renderNotes();
+
+document.getElementById('pdfBtn').addEventListener('click', () => {
+  document.body.classList.add('diagram-only-print');
+  window.print();
+});
+window.addEventListener('afterprint', () => {
+  document.body.classList.remove('diagram-only-print');
+});
+</script>
+</body>
+</html>
