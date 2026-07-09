@@ -42,7 +42,7 @@
   .field label{display:flex;justify-content:center;align-items:baseline;gap:8px;font-size:13px;font-weight:600;margin-bottom:6px;}
   .field label .tag{font-family:'IBM Plex Mono',monospace;font-size:11px;color:#fff;background:var(--blueprint-bg);padding:1px 6px;border-radius:4px;}
   .field label .unit-tag{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-soft);}
-  .field input[type=number]{width:100%;padding:9px 10px;border:1.5px solid var(--border);border-radius:6px;font-size:15px;font-family:'IBM Plex Mono',monospace;background:#FBFAF7;color:var(--ink);}
+  .field input[type=number], .field input[type=text], .field input[type=date]{width:100%;padding:9px 10px;border:1.5px solid var(--border);border-radius:6px;font-size:15px;font-family:'IBM Plex Mono',monospace;background:#FBFAF7;color:var(--ink);}
   .field input[type=number]:focus{outline:none;border-color:var(--accent);}
   .field .unit{font-size:12px;color:var(--ink-soft);font-weight:400;}
   .angle-row{display:flex;gap:10px;align-items:center;}
@@ -85,17 +85,42 @@
   .result-cell .value .unit{font-size:13px;color:var(--blueprint-line-bright);font-weight:400;margin-left:4px;}
   .formula-strip{padding:12px 18px 16px;font-family:'IBM Plex Mono',monospace;font-size:10.8px;color:var(--blueprint-line);border-top:1px solid rgba(255,255,255,.06);line-height:1.7;}
   .material-card{margin:20px auto 0;max-width:1240px;}
+  .doc-info-card{margin:0 auto 20px;max-width:1240px;padding:20px;}
+  .doc-info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;}
+  .doc-info-grid .field{margin-bottom:0;}
+  .doc-info-grid .field label{justify-content:flex-start;}
+  .summary-row{display:flex;justify-content:space-between;align-items:center;padding:8px 18px;font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--blueprint-text);border-bottom:1px solid rgba(255,255,255,.04);}
+  .summary-row .discount-input{width:90px;background:rgba(255,255,255,.06);border:1px solid var(--blueprint-line);border-radius:4px;color:#FFFFFF;font-family:'IBM Plex Mono',monospace;font-size:12px;padding:3px 5px;text-align:right;}
+  .signature-card{margin:20px auto 0;max-width:1240px;padding:24px 20px;background:var(--panel-bg);border:1px solid var(--border);border-radius:10px;}
+  .signature-grid{display:grid;grid-template-columns:1fr 1fr;gap:40px;}
+  .signature-block{text-align:center;}
+  .signature-line{border-bottom:1px solid var(--ink-soft);height:50px;margin-bottom:8px;}
+  .signature-label{font-size:13px;color:var(--ink-soft);}
+  .signature-date{font-size:11px;color:var(--ink-soft);margin-top:4px;}
   @media print {
     .material-card{page-break-before:always;margin-top:0;}
   }
   #materialGrid{display:block;background:none;padding:6px 18px 10px;}
   .mat-group{margin-bottom:14px;}
   .mat-group-title{font-family:'IBM Plex Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--accent);font-weight:600;padding:8px 0 6px;border-bottom:1px solid rgba(255,255,255,.1);margin-bottom:4px;}
-  .mat-row{display:flex;justify-content:space-between;gap:12px;padding:4px 0;font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--blueprint-text);border-bottom:1px solid rgba(255,255,255,.04);}
+  .mat-row{display:grid;grid-template-columns:1.6fr 90px 140px 110px;align-items:center;gap:10px;padding:6px 0;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--blueprint-text);border-bottom:1px solid rgba(255,255,255,.04);}
+  .mat-row-head{color:var(--blueprint-line-bright);opacity:.6;font-size:10px;text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid rgba(255,255,255,.1);padding-bottom:8px;}
   .mat-label{color:var(--blueprint-line-bright);opacity:.85;}
-  .mat-value{color:#FFFFFF;font-weight:600;white-space:nowrap;}
+  .mat-qty{color:#FFFFFF;font-weight:600;white-space:nowrap;}
+  .mat-price-cell{display:flex;align-items:center;gap:4px;}
+  .mat-price{width:64px;background:rgba(255,255,255,.06);border:1px solid var(--blueprint-line);border-radius:4px;color:#FFFFFF;font-family:'IBM Plex Mono',monospace;font-size:12px;padding:3px 5px;text-align:right;}
+  .mat-price:focus{outline:none;border-color:var(--accent);}
+  .mat-subtotal{color:var(--accent);font-weight:600;white-space:nowrap;text-align:right;}
   .mat-unit{font-weight:400;color:var(--blueprint-line-bright);margin-left:4px;font-size:11px;}
   .mat-note{font-family:'IBM Plex Sans Thai',sans-serif;font-size:11px;color:var(--blueprint-line);opacity:.8;padding:2px 0 6px 10px;font-style:italic;}
+  .head-actions{display:flex;gap:8px;}
+  .head-btn{background:none;border:1px solid var(--blueprint-line);color:var(--blueprint-line-bright);border-radius:5px;padding:5px 10px;font-family:'IBM Plex Sans Thai',sans-serif;font-size:11px;cursor:pointer;transition:.15s border-color,.15s color;}
+  .head-btn:hover{border-color:var(--accent);color:var(--accent);}
+  .mat-total-row{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-top:1.5px solid var(--accent);font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:700;color:#FFFFFF;}
+  .mat-total-row span:last-child{color:var(--accent);}
+  .mat-vat-row{border-top:1px solid rgba(255,255,255,.1);font-size:12.5px;font-weight:500;color:var(--blueprint-line-bright);padding:8px 18px;}
+  .mat-vat-row span:last-child{color:var(--blueprint-line-bright);}
+  .mat-grand-row{border-top:1.5px solid var(--accent);font-size:17px;}
   .notes-section{padding:10px 18px 18px;border-top:1px solid rgba(255,255,255,.06);}
   .notes-label{font-family:'IBM Plex Mono',monospace;font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--blueprint-line-bright);opacity:.75;margin-bottom:8px;}
   .notes-list{list-style:none;margin:0;padding:0;}
@@ -127,10 +152,10 @@
     .wrap{max-width:100%;padding:0;}
     .grid{gap:12px;}
     .panel{border:1px solid #C9C9C9;box-shadow:none;}
-    #pdfBtn, .send-panel{display:none !important;}
+    #pdfBtn, #clearAllBtn, .send-panel, .head-actions, #exportAllBtn, #importAllBtn{display:none !important;}
     .angle-row input[type=range]{display:none;}
     .angle-row .angle-val{font-size:16px;}
-    .field input[type=number]{background:#fff;border-color:#C9C9C9;color:#111;}
+    .field input[type=number], .field input[type=text], .field input[type=date]{background:#fff;border-color:#C9C9C9;color:#111;}
 
     /* blueprint panel: switch surfaces to white, keep line/stroke colors (--eave, --ridge-color, --hip-color, --accent) untouched */
     .blueprint{background:#FFFFFF;border:1px solid #C9C9C9;page-break-inside:avoid;}
@@ -157,10 +182,19 @@
     .notes-remove-btn, .notes-add-btn{display:none !important;}
     .mat-group-title{color:#333;border-bottom:1px solid #DDD;}
     .mat-row{color:#333;border-bottom:1px solid #EEE;}
+    .mat-row-head{color:#666;border-bottom:1px solid #DDD;}
     .mat-label{color:#555;}
-    .mat-value{color:#111;}
+    .mat-qty{color:#111;}
+    .mat-price{background:#fff;border:1px solid #C9C9C9;color:#111;}
+    .discount-input{background:#fff;border:1px solid #C9C9C9;color:#111;}
+    .summary-row{color:#333;border-bottom:1px solid #EEE;}
+    .mat-subtotal{color:#C97B1F;}
     .mat-unit{color:#666;}
     .mat-note{color:#777;}
+    .mat-total-row{color:#111;border-top:1.5px solid #C97B1F;}
+    .mat-total-row span:last-child{color:#C97B1F;}
+    .mat-vat-row{border-top:1px solid #DDD;color:#555;}
+    .mat-vat-row span:last-child{color:#555;}
   }
 
   /* Dedicated "save diagram as PDF" print mode: only the blueprint frame, single A4 page, drawing + dimensions + results */
@@ -219,11 +253,27 @@
     .notes-section{padding:8px 14px 14px;}
     .notes-label{font-size:9.5px;}
     .notes-item{font-size:12px;}
+    .mat-row{grid-template-columns:1fr;gap:2px;padding:8px 0;}
+    .mat-row-head{display:none;}
+    .mat-qty, .mat-price-cell, .mat-subtotal{justify-self:start;}
+    .mat-price{width:90px;}
+    .mat-total-row{padding:12px 14px;font-size:13px;}
   }
 </style>
 </head>
 <body>
 <div class="wrap">
+  <div class="blueprint doc-info-card" id="docInfoCard">
+    <div class="blueprint-head"><span class="title">ข้อมูลใบเสนอราคา</span></div>
+    <div class="doc-info-grid">
+      <div class="field"><label>ชื่อ-นามสกุล</label><input type="text" id="docCustomer" placeholder="ชื่อ-นามสกุล"></div>
+      <div class="field"><label>เบอร์โทร</label><input type="text" id="docPhone" placeholder="0XX-XXX-XXXX"></div>
+      <div class="field"><label>สถานที่ก่อสร้าง</label><input type="text" id="docSite" placeholder="ที่อยู่/สถานที่ก่อสร้าง"></div>
+      <div class="field"><label>เลขที่ใบเสนอราคา</label><input type="text" id="docQuoteNo" placeholder="QT-0000"></div>
+      <div class="field"><label>วันที่</label><input type="date" id="docDate"></div>
+    </div>
+  </div>
+
   <div class="grid">
     <div class="side-col">
       <div class="panel">
@@ -305,13 +355,60 @@
   <div class="blueprint material-card" id="materialCard">
     <div class="blueprint-head">
       <span class="title">คำนวณวัสดุ</span>
+      <span class="head-actions">
+        <button class="head-btn" id="exportPriceBtn" type="button">ส่งออกราคา</button>
+        <button class="head-btn" id="importPriceBtn" type="button">นำเข้าราคา</button>
+        <input type="file" id="importPriceFile" accept=".txt,text/plain" style="display:none">
+      </span>
     </div>
     <div class="results" id="materialGrid"></div>
+    <div class="mat-total-row mat-subtotal-row">
+      <span>ยอดรวมค่าวัสดุ</span>
+      <span id="materialTotal">0.00 บาท</span>
+    </div>
+  </div>
+
+  <div class="blueprint material-card" id="summaryCard">
+    <div class="blueprint-head">
+      <span class="title">สรุปยอดโครงการ</span>
+    </div>
+    <div class="summary-row"><span>ค่าวัสดุ</span><span id="sumMaterial">0.00 บาท</span></div>
+    <div class="summary-row"><span>ค่าแรงงานรวม (มุงกระเบื้อง + เชิงชาย + เดินทาง + ที่พัก)</span><span id="sumLabor">0.00 บาท</span></div>
+    <div class="summary-row">
+      <span>ส่วนลด</span>
+      <span><input type="number" class="discount-input" id="discountAmount" value="0" min="0" step="1"> บาท</span>
+    </div>
+    <div class="summary-row"><span>ยอดก่อนภาษี</span><span id="sumBeforeVat">0.00 บาท</span></div>
+    <div class="summary-row"><span>ภาษีมูลค่าเพิ่ม (VAT 7%)</span><span id="sumVat">0.00 บาท</span></div>
+    <div class="mat-total-row mat-grand-row"><span>ยอดรวมสุทธิ</span><span id="sumGrandTotal">0.00 บาท</span></div>
+  </div>
+
+  <div class="signature-card">
+    <div class="signature-grid">
+      <div class="signature-block">
+        <div class="signature-line"></div>
+        <div class="signature-label">ผู้เสนอราคา</div>
+        <div class="signature-date">วันที่ ____ / ____ / ____</div>
+      </div>
+      <div class="signature-block">
+        <div class="signature-line"></div>
+        <div class="signature-label">ผู้อนุมัติ</div>
+        <div class="signature-date">วันที่ ____ / ____ / ____</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align:center;margin-top:20px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+    <button class="cta-secondary" id="exportAllBtn" type="button" style="width:auto;">ส่งออกข้อมูลทั้งหมด (Export)</button>
+    <button class="cta-secondary" id="importAllBtn" type="button" style="width:auto;">นำเข้าข้อมูล (Import)</button>
+    <input type="file" id="importAllFile" accept=".txt,text/plain" style="display:none">
+    <button class="cta-secondary" id="clearAllBtn" type="button" style="width:auto;">ล้างค่าทั้งหมด</button>
   </div>
 </div>
 
 <script>
 const state = { shape: 'hip' };
+let materialPrices = {};
 
 const els = {
   angle: document.getElementById('inAngle'),
@@ -341,6 +438,10 @@ document.getElementById('rateTile').addEventListener('input', render);
 document.getElementById('rateEave').addEventListener('input', render);
 document.getElementById('rateTravel').addEventListener('input', render);
 document.getElementById('rateStay').addEventListener('input', render);
+document.getElementById('discountAmount').addEventListener('input', () => { updateProjectSummary(); saveState(); });
+['docCustomer','docPhone','docSite','docQuoteNo','docDate'].forEach(id => {
+  document.getElementById(id).addEventListener('input', saveState);
+});
 function syncTileRate(){
   document.getElementById('rateTile').value = document.getElementById('tileTypeFlat').checked ? 180 : 150;
   render();
@@ -426,7 +527,7 @@ function calcMaterials(d, tileType) {
     // หลังคาคอนกรีต ชนิดลอน
     const coef = area <= 200 ? 10.80 : (area <= 500 ? 10.70 : 10.65);
     tileCount = Math.ceil(coef * area + 3 * (hip + valley));
-    ridgeCapCount = Math.ceil((3.3 * ridge + hip) - ventCapSets);              // ครอบสันโค้ง (รวมสัน+ตะเข้)
+    ridgeCapCount = Math.ceil(3.3 * (ridge + hip) - ventCapSets + 4);          // ครอบสันโค้ง (รวมสัน+ตะเข้) +4 แผ่นเผื่อตัดมุมตะเข้ 4 มุม
     hipCapCount = null;                                                        // ไม่มีรายการแยกในสูตรชนิดลอน
     purlinCount = Math.ceil(0.80 * area + 0.50 * valley + eave / 3.8);
     tileScrewBoxes = Math.ceil((10.6 * area) / 250);
@@ -446,6 +547,17 @@ function calcMaterials(d, tileType) {
     dryRidgeSets, dryHipSets, mortarPaintWet,
     hipEndCoverBoxes, ridgeHipCoverBoxes
   };
+}
+
+function getLaborCosts(d) {
+  const tileLaborRate = parseFloat(document.getElementById('rateTile').value) || 0;
+  const eaveLaborRate = parseFloat(document.getElementById('rateEave').value) || 0;
+  const travelRate = parseFloat(document.getElementById('rateTravel').value) || 0;
+  const stayRate = parseFloat(document.getElementById('rateStay').value) || 0;
+  const tileLabor = tileLaborRate * d.slopedArea;
+  const eaveLabor = eaveLaborRate * d.eave;
+  const totalLabor = tileLabor + eaveLabor + travelRate + stayRate;
+  return { tileLaborRate, eaveLaborRate, travelRate, stayRate, tileLabor, eaveLabor, totalLabor };
 }
 
 function drawPlan(d) {
@@ -521,13 +633,10 @@ function drawPlan(d) {
     </g>`;
 
     // labor cost estimate — bottom-right corner of the diagram
-    const tileLaborRate = parseFloat(document.getElementById('rateTile').value) || 0;
-    const eaveLaborRate = parseFloat(document.getElementById('rateEave').value) || 0;
-    const travelRate = parseFloat(document.getElementById('rateTravel').value) || 0;
-    const stayRate = parseFloat(document.getElementById('rateStay').value) || 0;
-    const tileLabor = tileLaborRate * d.slopedArea;
-    const eaveLabor = eaveLaborRate * d.eave;
-    const totalLabor = tileLabor + eaveLabor + travelRate + stayRate;
+    const lc = getLaborCosts(d);
+    const tileLaborRate = lc.tileLaborRate, eaveLaborRate = lc.eaveLaborRate;
+    const travelRate = lc.travelRate, stayRate = lc.stayRate;
+    const tileLabor = lc.tileLabor, eaveLabor = lc.eaveLabor, totalLabor = lc.totalLabor;
     const priceX = vbW - 12;
     svg += `<g>
       <text class="price-text" x="${priceX}" y="${vbH-70}" text-anchor="end">ค่าแรงมุงกระเบื้อง (${tileLaborRate} บาท/ตร.ม.): ${fmt(tileLabor)} บาท</text>
@@ -572,62 +681,110 @@ function render() {
 
   const tileType = document.getElementById('tileTypeFlat').checked ? 'flat' : 'wave';
   const m = calcMaterials(d, tileType);
-  const row = (label, value, unit) => `<div class="mat-row"><span class="mat-label">${label}</span><span class="mat-value">${value}<span class="mat-unit">${unit}</span></span></div>`;
+  const row = (key, label, qty, unit) => {
+    const price = materialPrices[key] !== undefined ? materialPrices[key] : 0;
+    const subtotal = qty * price;
+    return `<div class="mat-row">
+      <span class="mat-label">${label}</span>
+      <span class="mat-qty">${fmt(qty,0)}<span class="mat-unit">${unit}</span></span>
+      <span class="mat-price-cell"><input type="number" class="mat-price" data-key="${key}" data-qty="${qty}" value="${price}" min="0" step="0.01"><span class="mat-unit">บาท/หน่วย</span></span>
+      <span class="mat-subtotal" data-subtotal-for="${key}">${fmt(subtotal)}<span class="mat-unit">บาท</span></span>
+    </div>`;
+  };
   const group = (title, rowsHtml) => `<div class="mat-group">${title ? `<div class="mat-group-title">${title}</div>` : ''}${rowsHtml}</div>`;
 
   let matHtml = '';
+  matHtml += `<div class="mat-row mat-row-head">
+    <span class="mat-label">รายการ</span>
+    <span class="mat-qty">จำนวน</span>
+    <span class="mat-price-cell">ราคา/หน่วย</span>
+    <span class="mat-subtotal">รวม</span>
+  </div>`;
   if (tileType === 'flat') {
     matHtml += group('กระเบื้องและครอบหลัก — ชนิดเรียบ (เพรสทีจ)', [
-      row('หลังคาคอนกรีต ชนิดเรียบ (เพรสทีจ)', fmt(m.tileCount,0), 'แผ่น'),
+      row('tileCount', 'หลังคาคอนกรีต ชนิดเรียบ (เพรสทีจ)', m.tileCount, 'แผ่น'),
       `<div class="mat-note">↳ รวมแผ่นที่ต้องตัดเศษตามแนวตะเข้สันแล้ว ~${fmt(m.hipTrimTiles,0)} แผ่น (ตะเข้สัน × 6)</div>`,
-      row('ครอบสันหลังคา', fmt(m.ridgeCapCount,0), 'แผ่น'),
-      row('ครอบตะเข้สัน', fmt(m.hipCapCount,0), 'แผ่น'),
-      row('ครอบปิดปลายตะเข้สัน', fmt(m.hipTipCapCount,0), 'แผ่น'),
+      row('ridgeCapCount', 'ครอบสันหลังคา', m.ridgeCapCount, 'แผ่น'),
+      row('hipCapCount', 'ครอบตะเข้สัน', m.hipCapCount, 'แผ่น'),
+      row('hipTipCapCount', 'ครอบปิดปลายตะเข้สัน', m.hipTipCapCount, 'แผ่น'),
     ].join(''));
   } else {
     matHtml += group('กระเบื้องและครอบหลัก — ชนิดลอน', [
-      row('หลังคาคอนกรีต ชนิดลอน', fmt(m.tileCount,0), 'แผ่น'),
+      row('tileCount', 'หลังคาคอนกรีต ชนิดลอน', m.tileCount, 'แผ่น'),
       `<div class="mat-note">↳ รวมแผ่นที่ต้องตัดเศษตามแนวตะเข้สันแล้ว ~${fmt(m.hipTrimTiles,0)} แผ่น (ตะเข้สัน × 6)</div>`,
-      row('ครอบสันโค้ง', fmt(m.ridgeCapCount,0), 'แผ่น'),
-      row('ครอบโค้งหางมน (ปลายตะเข้สัน)', fmt(m.hipTipCapCount,0), 'แผ่น'),
-      row('ครอบโค้ง 3 ทาง (จุดต่อสัน-ตะเข้)', fmt(m.junction3Way,0), 'แผ่น'),
+      row('ridgeCapCount', 'ครอบสันโค้ง', m.ridgeCapCount, 'แผ่น'),
+      row('hipTipCapCount', 'ครอบโค้งหางมน (ปลายตะเข้สัน)', m.hipTipCapCount, 'แผ่น'),
+      row('junction3Way', 'ครอบโค้ง 3 ทาง (จุดต่อสัน-ตะเข้)', m.junction3Way, 'แผ่น'),
     ].join(''));
   }
   matHtml += group('ฉนวนกันความร้อน / เทป', [
-    row('แผ่นสะท้อนความร้อน ม้วนใหญ่ (60 ตรม./ม้วน)', fmt(m.reflectRollsBig,0), 'ม้วน'),
-    row('แผ่นสะท้อนความร้อน ม้วนเล็ก (20 ตรม./ม้วน)', fmt(m.reflectRollsSmall,0), 'ม้วน'),
-    row('อลูมิเนียมเทป', fmt(m.alumTapeRolls,0), 'ม้วน'),
+    row('reflectRollsBig', 'แผ่นสะท้อนความร้อน ม้วนใหญ่ (60 ตรม./ม้วน)', m.reflectRollsBig, 'ม้วน'),
+    row('reflectRollsSmall', 'แผ่นสะท้อนความร้อน ม้วนเล็ก (20 ตรม./ม้วน)', m.reflectRollsSmall, 'ม้วน'),
+    row('alumTapeRolls', 'อลูมิเนียมเทป', m.alumTapeRolls, 'ม้วน'),
   ].join(''));
   matHtml += group('แปและอุปกรณ์ยึดแป', [
-    row('แปยาว 4 ม./ท่อน', fmt(m.purlinCount,0), 'ท่อน'),
-    row('ตะปูเกลียวยึดแป (500 ตัว/กล่อง)', fmt(m.purlinScrewBoxes,0), 'กล่อง'),
-    row('วัสดุปรับระดับแป (10 ตัว/กล่อง)', fmt(m.levelingBoxes,0), 'กล่อง'),
+    row('purlinCount', 'แปยาว 4 ม./ท่อน', m.purlinCount, 'ท่อน'),
+    row('purlinScrewBoxes', 'ตะปูเกลียวยึดแป (500 ตัว/กล่อง)', m.purlinScrewBoxes, 'กล่อง'),
+    row('levelingBoxes', 'วัสดุปรับระดับแป (10 ตัว/กล่อง)', m.levelingBoxes, 'กล่อง'),
   ].join(''));
   matHtml += group('ตะปู / ขอยึด / แผ่นปิด', [
-    row('ตะปูเกลียวยึดกระเบื้อง (250 ตัว/กล่อง)', fmt(m.tileScrewBoxes,0), 'กล่อง'),
-    row('ขอยึดเชิงชายไม้สังเคราะห์ (50 ตัว/กล่อง)', fmt(m.eaveHookBoxes,0), 'กล่อง'),
-    row('แหนบยึดกระเบื้องเศษ (50 ตัว/กล่อง)', fmt(m.clipBoxes,0), 'กล่อง'),
-    row('แผ่นปิดเชิงชาย แบบใหม่ (10 แผ่น/กล่อง)', fmt(m.eaveCoverBoxes,0), 'กล่อง'),
-    row('แผ่นปิดรอยต่อ', fmt(m.jointCoverCount,0), 'แผ่น'),
+    row('tileScrewBoxes', 'ตะปูเกลียวยึดกระเบื้อง (250 ตัว/กล่อง)', m.tileScrewBoxes, 'กล่อง'),
+    row('eaveHookBoxes', 'ขอยึดเชิงชายไม้สังเคราะห์ (50 ตัว/กล่อง)', m.eaveHookBoxes, 'กล่อง'),
+    row('clipBoxes', 'แหนบยึดกระเบื้องเศษ (50 ตัว/กล่อง)', m.clipBoxes, 'กล่อง'),
+    row('eaveCoverBoxes', 'แผ่นปิดเชิงชาย แบบใหม่ (10 แผ่น/กล่อง)', m.eaveCoverBoxes, 'กล่อง'),
+    row('jointCoverCount', 'แผ่นปิดรอยต่อ', m.jointCoverCount, 'แผ่น'),
   ].join(''));
   matHtml += group('ชุดยึดครอบระบบแห้ง', [
-    row('สำหรับสันหลังคา (ติดยาว)', fmt(m.dryRidgeSets,0), 'ชุด'),
-    row('สำหรับตะเข้สัน (ติดสเตป)', fmt(m.dryHipSets,0), 'ชุด'),
+    row('dryRidgeSets', 'สำหรับสันหลังคา (ติดยาว)', m.dryRidgeSets, 'ชุด'),
+    row('dryHipSets', 'สำหรับตะเข้สัน (ติดสเตป)', m.dryHipSets, 'ชุด'),
   ].join(''));
   if (tileType === 'wave') {
     matHtml += group('', [
-      row('สีทาปูนทรายใต้ครอบ (2 กก./กระป๋อง)', fmt(m.mortarPaintWet,0), 'กระป๋อง'),
+      row('mortarPaintWet', 'สีทาปูนทรายใต้ครอบ (2 กก./กระป๋อง)', m.mortarPaintWet, 'กระป๋อง'),
     ].join(''));
   }
   matHtml += group('อุปกรณ์กันสัตว์เล็ก (Drytech เท่านั้น)', [
-    row('แผ่นปิดปลายสันตะเข้ (4 ชิ้น/กล่อง)', fmt(m.hipEndCoverBoxes,0), 'กล่อง'),
-    row('แผ่นปิดครอบสัน/ตะเข้ (5 ชิ้น/กล่อง)', fmt(m.ridgeHipCoverBoxes,0), 'กล่อง'),
+    row('hipEndCoverBoxes', 'แผ่นปิดปลายสันตะเข้ (4 ชิ้น/กล่อง)', m.hipEndCoverBoxes, 'กล่อง'),
+    row('ridgeHipCoverBoxes', 'แผ่นปิดครอบสัน/ตะเข้ (5 ชิ้น/กล่อง)', m.ridgeHipCoverBoxes, 'กล่อง'),
   ].join(''));
 
   document.getElementById('materialGrid').innerHTML = matHtml;
+  updateMaterialTotal();
+  saveState();
 }
 
-render();
+function getMaterialSubtotal() {
+  let subtotal = 0;
+  document.querySelectorAll('.mat-price').forEach(el => {
+    const qty = parseFloat(el.dataset.qty) || 0;
+    const price = parseFloat(el.value) || 0;
+    subtotal += qty * price;
+  });
+  return subtotal;
+}
+
+function updateMaterialTotal() {
+  const subtotal = getMaterialSubtotal();
+  const totalEl = document.getElementById('materialTotal');
+  if (totalEl) totalEl.textContent = fmt(subtotal) + ' บาท';
+  updateProjectSummary();
+}
+
+function updateProjectSummary() {
+  const materialSubtotal = getMaterialSubtotal();
+  const d = calc();
+  const lc = getLaborCosts(d);
+  const laborTotal = lc.totalLabor;
+  const discount = parseFloat(document.getElementById('discountAmount').value) || 0;
+  const beforeVat = Math.max(0, materialSubtotal + laborTotal - discount);
+  const vat = beforeVat * 0.07;
+  const grandTotal = beforeVat + vat;
+  document.getElementById('sumMaterial').textContent = fmt(materialSubtotal) + ' บาท';
+  document.getElementById('sumLabor').textContent = fmt(laborTotal) + ' บาท';
+  document.getElementById('sumBeforeVat').textContent = fmt(beforeVat) + ' บาท';
+  document.getElementById('sumVat').textContent = fmt(vat) + ' บาท';
+  document.getElementById('sumGrandTotal').textContent = fmt(grandTotal) + ' บาท';
+}
 
 let notesData = [
   'ปริมาณวัสดุและอุปกรณ์ที่แสดง เป็นการประมาณการเบื้องต้นจากแบบก่อสร้างและข้อมูลที่ได้รับเท่านั้น ทั้งนี้ควรตรวจสอบรายละเอียดและสภาพหน้างานจริงก่อนสั่งซื้อวัสดุและดำเนินการทุกครั้ง',
@@ -645,11 +802,24 @@ function renderNotes() {
     </li>`).join('');
 }
 
+document.getElementById('materialGrid').addEventListener('input', (e) => {
+  if (!e.target.classList.contains('mat-price')) return;
+  const key = e.target.dataset.key;
+  const qty = parseFloat(e.target.dataset.qty) || 0;
+  const price = parseFloat(e.target.value) || 0;
+  materialPrices[key] = price;
+  const subtotalEl = document.querySelector(`[data-subtotal-for="${key}"]`);
+  if (subtotalEl) subtotalEl.innerHTML = fmt(qty * price) + '<span class="mat-unit">บาท</span>';
+  updateMaterialTotal();
+  saveState();
+});
+
 document.getElementById('notesList').addEventListener('click', (e) => {
   if (e.target.classList.contains('notes-remove-btn')) {
     const idx = parseInt(e.target.dataset.idx, 10);
     notesData.splice(idx, 1);
     renderNotes();
+    saveState();
   }
 });
 
@@ -657,18 +827,186 @@ document.getElementById('notesList').addEventListener('blur', (e) => {
   if (e.target.classList.contains('notes-item-text')) {
     const idx = parseInt(e.target.dataset.idx, 10);
     notesData[idx] = e.target.textContent;
+    saveState();
   }
 }, true);
 
 document.getElementById('addNoteBtn').addEventListener('click', () => {
   notesData.push('');
   renderNotes();
+  saveState();
   const items = document.querySelectorAll('.notes-item-text');
   const last = items[items.length - 1];
   if (last) { last.focus(); }
 });
 
+const STORAGE_KEY = 'roofCalcState_v1';
+
+function getStateObject() {
+  return {
+    W: document.getElementById('in_W').value,
+    L: document.getElementById('in_L').value,
+    angle: document.getElementById('inAngle').value,
+    tileType: document.getElementById('tileTypeFlat').checked ? 'flat' : 'wave',
+    rateTile: document.getElementById('rateTile').value,
+    rateEave: document.getElementById('rateEave').value,
+    rateTravel: document.getElementById('rateTravel').value,
+    rateStay: document.getElementById('rateStay').value,
+    discount: document.getElementById('discountAmount').value,
+    materialPrices: materialPrices,
+    notesData: notesData,
+    docCustomer: document.getElementById('docCustomer').value,
+    docPhone: document.getElementById('docPhone').value,
+    docSite: document.getElementById('docSite').value,
+    docQuoteNo: document.getElementById('docQuoteNo').value,
+    docDate: document.getElementById('docDate').value,
+  };
+}
+
+function applyStateObject(s) {
+  if (!s) return;
+  if (s.W) document.getElementById('in_W').value = s.W;
+  if (s.L) document.getElementById('in_L').value = s.L;
+  if (s.angle) document.getElementById('inAngle').value = s.angle;
+  if (s.tileType === 'flat') document.getElementById('tileTypeFlat').checked = true;
+  else if (s.tileType === 'wave') document.getElementById('tileTypeWave').checked = true;
+  if (s.rateTile !== undefined) document.getElementById('rateTile').value = s.rateTile;
+  if (s.rateEave !== undefined) document.getElementById('rateEave').value = s.rateEave;
+  if (s.rateTravel !== undefined) document.getElementById('rateTravel').value = s.rateTravel;
+  if (s.rateStay !== undefined) document.getElementById('rateStay').value = s.rateStay;
+  if (s.discount !== undefined) document.getElementById('discountAmount').value = s.discount;
+  if (s.materialPrices) materialPrices = s.materialPrices;
+  if (s.notesData) notesData = s.notesData;
+  if (s.docCustomer !== undefined) document.getElementById('docCustomer').value = s.docCustomer;
+  if (s.docPhone !== undefined) document.getElementById('docPhone').value = s.docPhone;
+  if (s.docSite !== undefined) document.getElementById('docSite').value = s.docSite;
+  if (s.docQuoteNo !== undefined) document.getElementById('docQuoteNo').value = s.docQuoteNo;
+  if (s.docDate !== undefined) document.getElementById('docDate').value = s.docDate;
+}
+
+function saveState() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(getStateObject())); }
+  catch (e) { /* storage unavailable (private mode etc.) — ignore */ }
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    applyStateObject(JSON.parse(raw));
+  } catch (e) { /* corrupt storage — ignore, fall back to defaults */ }
+}
+
+function stateToText(s) {
+  const lines = ['# ไฟล์ข้อมูลประมาณการหลังคา — แก้ไขได้ด้วยโปรแกรม Text ทั่วไป'];
+  const simpleKeys = ['W','L','angle','tileType','rateTile','rateEave','rateTravel','rateStay','discount','docCustomer','docPhone','docSite','docQuoteNo','docDate'];
+  simpleKeys.forEach(k => { if (s[k] !== undefined && s[k] !== '') lines.push(`${k}=${s[k]}`); });
+  if (s.materialPrices) {
+    lines.push('# ราคาต่อรายการวัสดุ');
+    Object.keys(s.materialPrices).forEach(k => lines.push(`price.${k}=${s.materialPrices[k]}`));
+  }
+  if (s.notesData) {
+    lines.push('# หมายเหตุ');
+    s.notesData.forEach((n, i) => lines.push(`note.${i+1}=${String(n).replace(/\r?\n/g, ' ')}`));
+  }
+  return lines.join('\n') + '\n';
+}
+
+function textToState(text) {
+  const s = { materialPrices: {} };
+  const noteMap = {};
+  text.split(/\r?\n/).forEach(line => {
+    line = line.trim();
+    if (!line || line.startsWith('#')) return;
+    const idx = line.indexOf('=');
+    if (idx === -1) return;
+    const key = line.slice(0, idx).trim();
+    const value = line.slice(idx + 1).trim();
+    if (key.startsWith('price.')) s.materialPrices[key.slice(6)] = parseFloat(value) || 0;
+    else if (key.startsWith('note.')) noteMap[parseInt(key.slice(5), 10)] = value;
+    else s[key] = value;
+  });
+  const noteKeys = Object.keys(noteMap).map(Number).sort((a, b) => a - b);
+  if (noteKeys.length) s.notesData = noteKeys.map(k => noteMap[k]);
+  return s;
+}
+
+function downloadText(text, filename) {
+  const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function readTextFile(file, callback) {
+  const reader = new FileReader();
+  reader.onload = () => {
+    try { callback(textToState(reader.result)); }
+    catch (e) { alert('ไฟล์ไม่ถูกต้องหรือเสียหาย อ่านข้อมูลไม่ได้'); }
+  };
+  reader.readAsText(file);
+}
+
+document.getElementById('exportAllBtn').addEventListener('click', () => {
+  const quoteNo = document.getElementById('docQuoteNo').value || 'quote';
+  downloadText(stateToText(getStateObject()), `roof-${quoteNo}-${new Date().toISOString().slice(0,10)}.txt`);
+});
+
+document.getElementById('importAllBtn').addEventListener('click', () => {
+  document.getElementById('importAllFile').click();
+});
+document.getElementById('importAllFile').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  readTextFile(file, (data) => {
+    applyStateObject(data);
+    renderNotes();
+    render();
+    saveState();
+  });
+  e.target.value = '';
+});
+
+document.getElementById('exportPriceBtn').addEventListener('click', () => {
+  const priceList = {
+    materialPrices: materialPrices,
+    rateTile: document.getElementById('rateTile').value,
+    rateEave: document.getElementById('rateEave').value,
+    rateTravel: document.getElementById('rateTravel').value,
+    rateStay: document.getElementById('rateStay').value,
+  };
+  downloadText(stateToText(priceList), `roof-price-list-${new Date().toISOString().slice(0,10)}.txt`);
+});
+
+document.getElementById('importPriceBtn').addEventListener('click', () => {
+  document.getElementById('importPriceFile').click();
+});
+document.getElementById('importPriceFile').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  readTextFile(file, (data) => {
+    if (data.materialPrices) Object.assign(materialPrices, data.materialPrices);
+    if (data.rateTile !== undefined) document.getElementById('rateTile').value = data.rateTile;
+    if (data.rateEave !== undefined) document.getElementById('rateEave').value = data.rateEave;
+    if (data.rateTravel !== undefined) document.getElementById('rateTravel').value = data.rateTravel;
+    if (data.rateStay !== undefined) document.getElementById('rateStay').value = data.rateStay;
+    render();
+    saveState();
+  });
+  e.target.value = '';
+});
+
+loadState();
 renderNotes();
+render();
+
+document.getElementById('clearAllBtn').addEventListener('click', () => {
+  if (!confirm('ล้างค่าทั้งหมดและเริ่มใหม่? ข้อมูลที่บันทึกไว้จะหายไปถาวร')) return;
+  try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+  location.reload();
+});
 
 document.getElementById('pdfBtn').addEventListener('click', () => {
   document.body.classList.add('diagram-only-print');
