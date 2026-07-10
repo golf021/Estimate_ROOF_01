@@ -85,10 +85,6 @@
   .result-cell .value .unit{font-size:13px;color:var(--blueprint-line-bright);font-weight:400;margin-left:4px;}
   .formula-strip{padding:12px 18px 16px;font-family:'IBM Plex Mono',monospace;font-size:10.8px;color:var(--blueprint-line);border-top:1px solid rgba(255,255,255,.06);line-height:1.7;}
   .material-card{margin:20px auto 0;max-width:1240px;}
-  .doc-info-card{margin:0 auto 20px;max-width:1240px;padding:20px;}
-  .doc-info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;}
-  .doc-info-grid .field{margin-bottom:0;}
-  .doc-info-grid .field label{justify-content:flex-start;}
   .summary-row{display:flex;justify-content:space-between;align-items:center;padding:8px 18px;font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--blueprint-text);border-bottom:1px solid rgba(255,255,255,.04);}
   .summary-row-sub{padding-left:30px;font-size:12px;color:var(--blueprint-line-bright);opacity:.9;font-style:italic;}
   .signature-card{margin:20px auto 0;max-width:1240px;padding:24px 20px;background:var(--panel-bg);border:1px solid var(--border);border-radius:10px;}
@@ -156,6 +152,7 @@
 
     /* blueprint panel: switch surfaces to white, keep line/stroke colors (--eave, --ridge-color, --hip-color, --accent) untouched */
     .blueprint{background:#FFFFFF;border:1px solid #C9C9C9;page-break-inside:avoid;}
+    .grid > .blueprint{max-width:none !important;width:100%;}
     .blueprint-head{border-bottom:1px solid #DDD;}
     .blueprint-head .title{color:#333;}
     .blueprint-head .scale{color:#666;}
@@ -207,6 +204,7 @@
       page-break-inside:avoid;
       margin:0 auto !important;
     }
+    body.diagram-only-print .grid > .blueprint{max-width:none !important;width:100%;}
     body.diagram-only-print .blueprint-head{border-bottom:1px solid #DDD !important;padding:8px 16px !important;}
     body.diagram-only-print .blueprint-head .title{color:#333 !important;}
     body.diagram-only-print .blueprint-head .scale{color:#666 !important;}
@@ -271,16 +269,6 @@
 </head>
 <body>
 <div class="wrap">
-  <div class="blueprint doc-info-card" id="docInfoCard">
-    <div class="blueprint-head"><span class="title">ข้อมูลใบเสนอราคา</span></div>
-    <div class="doc-info-grid">
-      <div class="field"><label>ชื่อ-นามสกุล</label><input type="text" id="docCustomer" placeholder="ชื่อ-นามสกุล"></div>
-      <div class="field"><label>เบอร์โทร</label><input type="text" id="docPhone" placeholder="0XX-XXX-XXXX"></div>
-      <div class="field"><label>สถานที่ก่อสร้าง</label><input type="text" id="docSite" placeholder="ที่อยู่/สถานที่ก่อสร้าง"></div>
-      <div class="field"><label>เลขที่ใบเสนอราคา</label><input type="text" id="docQuoteNo" placeholder="QT-0000"></div>
-      <div class="field"><label>วันที่</label><input type="date" id="docDate"></div>
-    </div>
-  </div>
 
   <div class="grid">
     <div class="side-col">
@@ -340,7 +328,7 @@
       </div>
       <div class="diagram-area">
         <div class="plan-wrap" id="planWrap">
-          <svg class="plan" viewBox="0 0 560 390" id="planSvg"></svg>
+          <svg class="plan" viewBox="0 0 560 420" id="planSvg"></svg>
         </div>
       </div>
       <div class="legend">
@@ -461,9 +449,6 @@ document.getElementById('rateTile').addEventListener('input', render);
 document.getElementById('rateEave').addEventListener('input', render);
 document.getElementById('rateTravel').addEventListener('input', render);
 document.getElementById('rateStay').addEventListener('input', render);
-['docCustomer','docPhone','docSite','docQuoteNo','docDate'].forEach(id => {
-  document.getElementById(id).addEventListener('input', saveState);
-});
 function syncTileRate(){
   document.getElementById('rateTile').value = document.getElementById('tileTypeFlat').checked ? 180 : 150;
   render();
@@ -583,7 +568,7 @@ function getLaborCosts(d) {
 }
 
 function drawPlan(d) {
-  const vbW=560, vbH=390;
+  const vbW=560, vbH=420;
   let svg='';
   for (let x=0;x<=vbW;x+=20) svg += `<line class="grid-line" x1="${x}" y1="0" x2="${x}" y2="${vbH}"/>`;
   for (let y=0;y<=vbH;y+=20) svg += `<line class="grid-line" x1="0" y1="${y}" x2="${vbW}" y2="${y}"/>`;
@@ -875,11 +860,6 @@ function getStateObject() {
     rateStay: document.getElementById('rateStay').value,
     materialPrices: materialPrices,
     notesData: notesData,
-    docCustomer: document.getElementById('docCustomer').value,
-    docPhone: document.getElementById('docPhone').value,
-    docSite: document.getElementById('docSite').value,
-    docQuoteNo: document.getElementById('docQuoteNo').value,
-    docDate: document.getElementById('docDate').value,
   };
 }
 
@@ -896,11 +876,6 @@ function applyStateObject(s) {
   if (s.rateStay !== undefined) document.getElementById('rateStay').value = s.rateStay;
   if (s.materialPrices) materialPrices = s.materialPrices;
   if (s.notesData) notesData = s.notesData;
-  if (s.docCustomer !== undefined) document.getElementById('docCustomer').value = s.docCustomer;
-  if (s.docPhone !== undefined) document.getElementById('docPhone').value = s.docPhone;
-  if (s.docSite !== undefined) document.getElementById('docSite').value = s.docSite;
-  if (s.docQuoteNo !== undefined) document.getElementById('docQuoteNo').value = s.docQuoteNo;
-  if (s.docDate !== undefined) document.getElementById('docDate').value = s.docDate;
 }
 
 function saveState() {
@@ -918,7 +893,7 @@ function loadState() {
 
 function stateToText(s) {
   const lines = ['# ไฟล์ข้อมูลประมาณการหลังคา — แก้ไขได้ด้วยโปรแกรม Text ทั่วไป'];
-  const simpleKeys = ['W','L','angle','tileType','rateTile','rateEave','rateTravel','rateStay','docCustomer','docPhone','docSite','docQuoteNo','docDate'];
+  const simpleKeys = ['W','L','angle','tileType','rateTile','rateEave','rateTravel','rateStay'];
   simpleKeys.forEach(k => { if (s[k] !== undefined && s[k] !== '') lines.push(`${k}=${s[k]}`); });
   if (s.materialPrices) {
     lines.push('# ราคาต่อรายการวัสดุ');
@@ -1001,9 +976,8 @@ function getCalculatedSnapshotLines() {
 }
 
 document.getElementById('exportAllBtn').addEventListener('click', () => {
-  const quoteNo = document.getElementById('docQuoteNo').value || 'quote';
   const fullText = stateToText(getStateObject()) + '\n' + getCalculatedSnapshotLines().join('\n') + '\n';
-  downloadText(fullText, `roof-${quoteNo}-${new Date().toISOString().slice(0,10)}.txt`);
+  downloadText(fullText, `roof-quote-${new Date().toISOString().slice(0,10)}.txt`);
 });
 
 document.getElementById('importAllBtn').addEventListener('click', () => {
