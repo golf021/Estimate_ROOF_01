@@ -253,10 +253,19 @@
     .notes-section{padding:8px 14px 14px;}
     .notes-label{font-size:9.5px;}
     .notes-item{font-size:12px;}
-    .mat-row{grid-template-columns:1fr;gap:2px;padding:8px 0;}
+    .mat-row{
+      display:grid;
+      grid-template-columns:1fr auto;
+      grid-template-areas:"label price" "qty subtotal";
+      gap:4px 10px;
+      padding:10px 0;
+    }
     .mat-row-head{display:none;}
-    .mat-qty, .mat-price-cell, .mat-subtotal{justify-self:start;}
-    .mat-price{width:90px;}
+    .mat-label{grid-area:label;align-self:center;}
+    .mat-price-cell{grid-area:price;justify-self:end;align-self:center;}
+    .mat-qty{grid-area:qty;font-size:10.5px;opacity:.75;}
+    .mat-subtotal{grid-area:subtotal;justify-self:end;font-size:11px;}
+    .mat-price{width:78px;}
     .mat-total-row{padding:12px 14px;font-size:13px;}
   }
 </style>
@@ -949,9 +958,42 @@ function readTextFile(file, callback) {
   reader.readAsText(file);
 }
 
+function getCalculatedSnapshotLines() {
+  const lines = ['# ค่าที่คำนวณได้ทั้งหมด (อ้างอิงเท่านั้น — ตอนนำเข้าไฟล์นี้กลับ จะคำนวณค่าพวกนี้ใหม่จาก input ด้านบนเสมอ ไม่ได้อ่านจากตรงนี้)'];
+  lines.push('## ผลลัพธ์ผังหลังคา');
+  document.querySelectorAll('#resultsGrid .result-cell').forEach(cell => {
+    const label = cell.querySelector('.label')?.textContent?.trim();
+    const value = cell.querySelector('.value')?.textContent?.trim().replace(/\s+/g, ' ');
+    if (label && value) lines.push(`calc.${label}=${value}`);
+  });
+  lines.push('## รายการวัสดุ (จำนวน / ราคารวม)');
+  document.querySelectorAll('#materialGrid .mat-row').forEach(row => {
+    if (row.classList.contains('mat-row-head')) return;
+    const label = row.querySelector('.mat-label')?.textContent?.trim();
+    const qty = row.querySelector('.mat-qty')?.textContent?.trim().replace(/\s+/g, ' ');
+    const subtotal = row.querySelector('.mat-subtotal')?.textContent?.trim().replace(/\s+/g, ' ');
+    if (label) lines.push(`calc.material.${label}=จำนวน ${qty} · รวม ${subtotal}`);
+  });
+  lines.push('## ค่าแรง');
+  const d = calc();
+  const lc = getLaborCosts(d);
+  lines.push(`calc.ค่าแรงมุงกระเบื้อง=${fmt(lc.tileLabor)} บาท`);
+  lines.push(`calc.ค่าแรงติดตั้งเชิงชาย=${fmt(lc.eaveLabor)} บาท`);
+  lines.push(`calc.ค่าเดินทาง=${fmt(lc.travelRate)} บาท`);
+  lines.push(`calc.ค่าที่พัก=${fmt(lc.stayRate)} บาท`);
+  lines.push(`calc.ค่าแรงงานรวม=${fmt(lc.totalLabor)} บาท`);
+  lines.push('## สรุปยอดโครงการ');
+  lines.push(`calc.ยอดรวมค่าวัสดุ=${document.getElementById('materialTotal').textContent.trim()}`);
+  lines.push(`calc.ยอดก่อนภาษี=${document.getElementById('sumBeforeVat').textContent.trim()}`);
+  lines.push(`calc.VAT_7%=${document.getElementById('sumVat').textContent.trim()}`);
+  lines.push(`calc.ยอดรวมสุทธิ=${document.getElementById('sumGrandTotal').textContent.trim()}`);
+  return lines;
+}
+
 document.getElementById('exportAllBtn').addEventListener('click', () => {
   const quoteNo = document.getElementById('docQuoteNo').value || 'quote';
-  downloadText(stateToText(getStateObject()), `roof-${quoteNo}-${new Date().toISOString().slice(0,10)}.txt`);
+  const fullText = stateToText(getStateObject()) + '\n' + getCalculatedSnapshotLines().join('\n') + '\n';
+  downloadText(fullText, `roof-${quoteNo}-${new Date().toISOString().slice(0,10)}.txt`);
 });
 
 document.getElementById('importAllBtn').addEventListener('click', () => {
