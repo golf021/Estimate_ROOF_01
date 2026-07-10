@@ -254,18 +254,20 @@
     .notes-label{font-size:9.5px;}
     .notes-item{font-size:12px;}
     .mat-row{
-      display:grid;
-      grid-template-columns:1fr auto;
-      grid-template-areas:"label price" "qty subtotal";
-      gap:4px 10px;
-      padding:10px 0;
+      display:flex;
+      align-items:center;
+      flex-wrap:nowrap;
+      gap:6px;
+      padding:9px 0;
     }
     .mat-row-head{display:none;}
-    .mat-label{grid-area:label;align-self:center;}
-    .mat-price-cell{grid-area:price;justify-self:end;align-self:center;}
-    .mat-qty{grid-area:qty;font-size:10.5px;opacity:.75;}
-    .mat-subtotal{grid-area:subtotal;justify-self:end;font-size:11px;}
-    .mat-price{width:78px;}
+    .mat-label{flex:1 1 auto;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:10px;}
+    .mat-qty{flex:0 0 auto;white-space:nowrap;font-size:10px;}
+    .mat-price-cell{flex:0 0 auto;white-space:nowrap;gap:2px;}
+    .mat-price{width:44px;font-size:10px;padding:2px 3px;}
+    .mat-price-cell .mat-unit{display:none;}
+    .mat-subtotal{flex:0 0 auto;white-space:nowrap;font-size:10px;}
+    .mat-unit{font-size:9px;margin-left:2px;}
     .mat-total-row{padding:12px 14px;font-size:13px;}
   }
 </style>
