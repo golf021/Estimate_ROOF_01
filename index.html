@@ -90,7 +90,7 @@
   .doc-info-grid .field{margin-bottom:0;}
   .doc-info-grid .field label{justify-content:flex-start;}
   .summary-row{display:flex;justify-content:space-between;align-items:center;padding:8px 18px;font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--blueprint-text);border-bottom:1px solid rgba(255,255,255,.04);}
-  .summary-row .discount-input{width:90px;background:rgba(255,255,255,.06);border:1px solid var(--blueprint-line);border-radius:4px;color:#FFFFFF;font-family:'IBM Plex Mono',monospace;font-size:12px;padding:3px 5px;text-align:right;}
+  .summary-row-sub{padding-left:30px;font-size:12px;color:var(--blueprint-line-bright);opacity:.9;font-style:italic;}
   .signature-card{margin:20px auto 0;max-width:1240px;padding:24px 20px;background:var(--panel-bg);border:1px solid var(--border);border-radius:10px;}
   .signature-grid{display:grid;grid-template-columns:1fr 1fr;gap:40px;}
   .signature-block{text-align:center;}
@@ -113,9 +113,6 @@
   .mat-subtotal{color:var(--accent);font-weight:600;white-space:nowrap;text-align:right;}
   .mat-unit{font-weight:400;color:var(--blueprint-line-bright);margin-left:4px;font-size:11px;}
   .mat-note{font-family:'IBM Plex Sans Thai',sans-serif;font-size:11px;color:var(--blueprint-line);opacity:.8;padding:2px 0 6px 10px;font-style:italic;}
-  .head-actions{display:flex;gap:8px;}
-  .head-btn{background:none;border:1px solid var(--blueprint-line);color:var(--blueprint-line-bright);border-radius:5px;padding:5px 10px;font-family:'IBM Plex Sans Thai',sans-serif;font-size:11px;cursor:pointer;transition:.15s border-color,.15s color;}
-  .head-btn:hover{border-color:var(--accent);color:var(--accent);}
   .mat-total-row{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-top:1.5px solid var(--accent);font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:700;color:#FFFFFF;}
   .mat-total-row span:last-child{color:var(--accent);}
   .mat-vat-row{border-top:1px solid rgba(255,255,255,.1);font-size:12.5px;font-weight:500;color:var(--blueprint-line-bright);padding:8px 18px;}
@@ -152,7 +149,7 @@
     .wrap{max-width:100%;padding:0;}
     .grid{gap:12px;}
     .panel{border:1px solid #C9C9C9;box-shadow:none;}
-    #pdfBtn, #clearAllBtn, .send-panel, .head-actions, #exportAllBtn, #importAllBtn{display:none !important;}
+    #pdfBtn, #clearAllBtn, .send-panel, #exportAllBtn, #importAllBtn{display:none !important;}
     .angle-row input[type=range]{display:none;}
     .angle-row .angle-val{font-size:16px;}
     .field input[type=number], .field input[type=text], .field input[type=date]{background:#fff;border-color:#C9C9C9;color:#111;}
@@ -186,8 +183,8 @@
     .mat-label{color:#555;}
     .mat-qty{color:#111;}
     .mat-price{background:#fff;border:1px solid #C9C9C9;color:#111;}
-    .discount-input{background:#fff;border:1px solid #C9C9C9;color:#111;}
     .summary-row{color:#333;border-bottom:1px solid #EEE;}
+    .summary-row-sub{color:#666;}
     .mat-subtotal{color:#C97B1F;}
     .mat-unit{color:#666;}
     .mat-note{color:#777;}
@@ -330,8 +327,6 @@
         </div>
       </div>
 
-      <button class="cta-secondary" id="pdfBtn">บันทึกแบบเป็น PDF →</button>
-
       <div class="send-panel" id="sendPanel">
         <div class="t">สรุปข้อมูลประมาณการ</div>
         <div id="sendRows"></div>
@@ -366,11 +361,6 @@
   <div class="blueprint material-card" id="materialCard">
     <div class="blueprint-head">
       <span class="title">คำนวณวัสดุ</span>
-      <span class="head-actions">
-        <button class="head-btn" id="exportPriceBtn" type="button">ส่งออกราคา</button>
-        <button class="head-btn" id="importPriceBtn" type="button">นำเข้าราคา</button>
-        <input type="file" id="importPriceFile" accept=".txt,text/plain" style="display:none">
-      </span>
     </div>
     <div class="results" id="materialGrid"></div>
     <div class="mat-total-row mat-subtotal-row">
@@ -384,13 +374,9 @@
       <span class="title">สรุปยอดโครงการ</span>
     </div>
     <div class="summary-row"><span>ค่าวัสดุ</span><span id="sumMaterial">0.00 บาท</span></div>
-    <div class="summary-row"><span>ค่าแรงงานรวม (มุงกระเบื้อง + เชิงชาย + เดินทาง + ที่พัก)</span><span id="sumLabor">0.00 บาท</span></div>
-    <div class="summary-row">
-      <span>ส่วนลด</span>
-      <span><input type="number" class="discount-input" id="discountAmount" value="0" min="0" step="1"> บาท</span>
-    </div>
-    <div class="summary-row"><span>ยอดก่อนภาษี</span><span id="sumBeforeVat">0.00 บาท</span></div>
-    <div class="summary-row"><span>ภาษีมูลค่าเพิ่ม (VAT 7%)</span><span id="sumVat">0.00 บาท</span></div>
+    <div class="summary-row"><span>ภาษีมูลค่าเพิ่มค่าวัสดุ (VAT 7%)</span><span id="sumVat">0.00 บาท</span></div>
+    <div class="summary-row summary-row-sub"><span>ยอดค่าวัสดุรวม VAT</span><span id="sumMaterialWithVat">0.00 บาท</span></div>
+    <div class="summary-row"><span>ค่าแรงมุงหลังคา (ไม่มี VAT)</span><span id="sumLabor">0.00 บาท</span></div>
     <div class="mat-total-row mat-grand-row"><span>ยอดรวมสุทธิ</span><span id="sumGrandTotal">0.00 บาท</span></div>
   </div>
 
@@ -410,6 +396,7 @@
   </div>
 
   <div style="text-align:center;margin-top:20px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+    <button class="cta-secondary" id="pdfBtn" type="button" style="width:auto;">บันทึกแบบเป็น PDF →</button>
     <button class="cta-secondary" id="exportAllBtn" type="button" style="width:auto;">ส่งออกข้อมูลทั้งหมด (Export)</button>
     <button class="cta-secondary" id="importAllBtn" type="button" style="width:auto;">นำเข้าข้อมูล (Import)</button>
     <input type="file" id="importAllFile" accept=".txt,text/plain" style="display:none">
@@ -419,7 +406,32 @@
 
 <script>
 const state = { shape: 'hip' };
-let materialPrices = {};
+let materialPrices = {
+  wave_tileCount: 22.00,
+  wave_ridgeCapCount: 38.00,
+  wave_hipTipCapCount: 54.00,
+  junction3Way: 64.00,
+  flat_tileCount: 38.00,
+  flat_ridgeCapCount: 65.00,
+  hipCapCount: 65.00,
+  flat_hipTipCapCount: 94.00,
+  reflectRollsBig: 4700.00,
+  reflectRollsSmall: 1850.00,
+  alumTapeRolls: 210.00,
+  purlinCount: 190.00,
+  purlinScrewBoxes: 300.00,
+  levelingBoxes: 150.00,
+  tileScrewBoxes: 450.00,
+  eaveHookBoxes: 400.00,
+  clipBoxes: 1000.00,
+  eaveCoverBoxes: 190.00,
+  jointCoverCount: 350.00,
+  dryRidgeSets: 1900.00,
+  dryHipSets: 2500.00,
+  mortarPaintWet: 420.00,
+  hipEndCoverBoxes: 1000.00,
+  ridgeHipCoverBoxes: 1000.00,
+};
 
 const els = {
   angle: document.getElementById('inAngle'),
@@ -449,7 +461,6 @@ document.getElementById('rateTile').addEventListener('input', render);
 document.getElementById('rateEave').addEventListener('input', render);
 document.getElementById('rateTravel').addEventListener('input', render);
 document.getElementById('rateStay').addEventListener('input', render);
-document.getElementById('discountAmount').addEventListener('input', () => { updateProjectSummary(); saveState(); });
 ['docCustomer','docPhone','docSite','docQuoteNo','docDate'].forEach(id => {
   document.getElementById(id).addEventListener('input', saveState);
 });
@@ -713,18 +724,18 @@ function render() {
   </div>`;
   if (tileType === 'flat') {
     matHtml += group('กระเบื้องและครอบหลัก — ชนิดเรียบ (เพรสทีจ)', [
-      row('tileCount', 'หลังคาคอนกรีต ชนิดเรียบ (เพรสทีจ)', m.tileCount, 'แผ่น'),
+      row('flat_tileCount', 'หลังคาคอนกรีต ชนิดเรียบ (เพรสทีจ)', m.tileCount, 'แผ่น'),
       `<div class="mat-note">↳ รวมแผ่นที่ต้องตัดเศษตามแนวตะเข้สันแล้ว ~${fmt(m.hipTrimTiles,0)} แผ่น (ตะเข้สัน × 6)</div>`,
-      row('ridgeCapCount', 'ครอบสันหลังคา', m.ridgeCapCount, 'แผ่น'),
+      row('flat_ridgeCapCount', 'ครอบสันหลังคา', m.ridgeCapCount, 'แผ่น'),
       row('hipCapCount', 'ครอบตะเข้สัน', m.hipCapCount, 'แผ่น'),
-      row('hipTipCapCount', 'ครอบปิดปลายตะเข้สัน', m.hipTipCapCount, 'แผ่น'),
+      row('flat_hipTipCapCount', 'ครอบปิดปลายตะเข้สัน', m.hipTipCapCount, 'แผ่น'),
     ].join(''));
   } else {
     matHtml += group('กระเบื้องและครอบหลัก — ชนิดลอน', [
-      row('tileCount', 'หลังคาคอนกรีต ชนิดลอน', m.tileCount, 'แผ่น'),
+      row('wave_tileCount', 'หลังคาคอนกรีต ชนิดลอน', m.tileCount, 'แผ่น'),
       `<div class="mat-note">↳ รวมแผ่นที่ต้องตัดเศษตามแนวตะเข้สันแล้ว ~${fmt(m.hipTrimTiles,0)} แผ่น (ตะเข้สัน × 6)</div>`,
-      row('ridgeCapCount', 'ครอบสันโค้ง', m.ridgeCapCount, 'แผ่น'),
-      row('hipTipCapCount', 'ครอบโค้งหางมน (ปลายตะเข้สัน)', m.hipTipCapCount, 'แผ่น'),
+      row('wave_ridgeCapCount', 'ครอบสันโค้ง', m.ridgeCapCount, 'แผ่น'),
+      row('wave_hipTipCapCount', 'ครอบโค้งหางมน (ปลายตะเข้สัน)', m.hipTipCapCount, 'แผ่น'),
       row('junction3Way', 'ครอบโค้ง 3 ทาง (จุดต่อสัน-ตะเข้)', m.junction3Way, 'แผ่น'),
     ].join(''));
   }
@@ -786,14 +797,13 @@ function updateProjectSummary() {
   const d = calc();
   const lc = getLaborCosts(d);
   const laborTotal = lc.totalLabor;
-  const discount = parseFloat(document.getElementById('discountAmount').value) || 0;
-  const beforeVat = Math.max(0, materialSubtotal + laborTotal - discount);
-  const vat = beforeVat * 0.07;
-  const grandTotal = beforeVat + vat;
+  const vat = materialSubtotal * 0.07;
+  const materialWithVat = materialSubtotal + vat;
+  const grandTotal = materialWithVat + laborTotal;
   document.getElementById('sumMaterial').textContent = fmt(materialSubtotal) + ' บาท';
-  document.getElementById('sumLabor').textContent = fmt(laborTotal) + ' บาท';
-  document.getElementById('sumBeforeVat').textContent = fmt(beforeVat) + ' บาท';
   document.getElementById('sumVat').textContent = fmt(vat) + ' บาท';
+  document.getElementById('sumMaterialWithVat').textContent = fmt(materialWithVat) + ' บาท';
+  document.getElementById('sumLabor').textContent = fmt(laborTotal) + ' บาท';
   document.getElementById('sumGrandTotal').textContent = fmt(grandTotal) + ' บาท';
 }
 
@@ -863,7 +873,6 @@ function getStateObject() {
     rateEave: document.getElementById('rateEave').value,
     rateTravel: document.getElementById('rateTravel').value,
     rateStay: document.getElementById('rateStay').value,
-    discount: document.getElementById('discountAmount').value,
     materialPrices: materialPrices,
     notesData: notesData,
     docCustomer: document.getElementById('docCustomer').value,
@@ -885,7 +894,6 @@ function applyStateObject(s) {
   if (s.rateEave !== undefined) document.getElementById('rateEave').value = s.rateEave;
   if (s.rateTravel !== undefined) document.getElementById('rateTravel').value = s.rateTravel;
   if (s.rateStay !== undefined) document.getElementById('rateStay').value = s.rateStay;
-  if (s.discount !== undefined) document.getElementById('discountAmount').value = s.discount;
   if (s.materialPrices) materialPrices = s.materialPrices;
   if (s.notesData) notesData = s.notesData;
   if (s.docCustomer !== undefined) document.getElementById('docCustomer').value = s.docCustomer;
@@ -910,7 +918,7 @@ function loadState() {
 
 function stateToText(s) {
   const lines = ['# ไฟล์ข้อมูลประมาณการหลังคา — แก้ไขได้ด้วยโปรแกรม Text ทั่วไป'];
-  const simpleKeys = ['W','L','angle','tileType','rateTile','rateEave','rateTravel','rateStay','discount','docCustomer','docPhone','docSite','docQuoteNo','docDate'];
+  const simpleKeys = ['W','L','angle','tileType','rateTile','rateEave','rateTravel','rateStay','docCustomer','docPhone','docSite','docQuoteNo','docDate'];
   simpleKeys.forEach(k => { if (s[k] !== undefined && s[k] !== '') lines.push(`${k}=${s[k]}`); });
   if (s.materialPrices) {
     lines.push('# ราคาต่อรายการวัสดุ');
@@ -983,11 +991,11 @@ function getCalculatedSnapshotLines() {
   lines.push(`calc.ค่าแรงติดตั้งเชิงชาย=${fmt(lc.eaveLabor)} บาท`);
   lines.push(`calc.ค่าเดินทาง=${fmt(lc.travelRate)} บาท`);
   lines.push(`calc.ค่าที่พัก=${fmt(lc.stayRate)} บาท`);
-  lines.push(`calc.ค่าแรงงานรวม=${fmt(lc.totalLabor)} บาท`);
+  lines.push(`calc.ค่าแรงมุงหลังคา=${fmt(lc.totalLabor)} บาท`);
   lines.push('## สรุปยอดโครงการ');
   lines.push(`calc.ยอดรวมค่าวัสดุ=${document.getElementById('materialTotal').textContent.trim()}`);
-  lines.push(`calc.ยอดก่อนภาษี=${document.getElementById('sumBeforeVat').textContent.trim()}`);
-  lines.push(`calc.VAT_7%=${document.getElementById('sumVat').textContent.trim()}`);
+  lines.push(`calc.VAT_7%_ค่าวัสดุ=${document.getElementById('sumVat').textContent.trim()}`);
+  lines.push(`calc.ยอดค่าวัสดุรวม_VAT=${document.getElementById('sumMaterialWithVat').textContent.trim()}`);
   lines.push(`calc.ยอดรวมสุทธิ=${document.getElementById('sumGrandTotal').textContent.trim()}`);
   return lines;
 }
@@ -1007,35 +1015,6 @@ document.getElementById('importAllFile').addEventListener('change', (e) => {
   readTextFile(file, (data) => {
     applyStateObject(data);
     renderNotes();
-    render();
-    saveState();
-  });
-  e.target.value = '';
-});
-
-document.getElementById('exportPriceBtn').addEventListener('click', () => {
-  const priceList = {
-    materialPrices: materialPrices,
-    rateTile: document.getElementById('rateTile').value,
-    rateEave: document.getElementById('rateEave').value,
-    rateTravel: document.getElementById('rateTravel').value,
-    rateStay: document.getElementById('rateStay').value,
-  };
-  downloadText(stateToText(priceList), `roof-price-list-${new Date().toISOString().slice(0,10)}.txt`);
-});
-
-document.getElementById('importPriceBtn').addEventListener('click', () => {
-  document.getElementById('importPriceFile').click();
-});
-document.getElementById('importPriceFile').addEventListener('change', (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
-  readTextFile(file, (data) => {
-    if (data.materialPrices) Object.assign(materialPrices, data.materialPrices);
-    if (data.rateTile !== undefined) document.getElementById('rateTile').value = data.rateTile;
-    if (data.rateEave !== undefined) document.getElementById('rateEave').value = data.rateEave;
-    if (data.rateTravel !== undefined) document.getElementById('rateTravel').value = data.rateTravel;
-    if (data.rateStay !== undefined) document.getElementById('rateStay').value = data.rateStay;
     render();
     saveState();
   });
